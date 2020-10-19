@@ -20,6 +20,12 @@ public strictfp class RobotPlayer {
     static int turnCount;
 
     /**
+     * Add location of HQ when startinig the game.
+     * This will be used by the Miner to go back to deposit soup.
+     */
+    static MapLocation HQlocation;
+
+    /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
      **/
@@ -38,7 +44,7 @@ public strictfp class RobotPlayer {
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
             try {
                 // Here, we've separated the controls into a different method for each RobotType.
-                // You can add the missing ones or rewrite this into your own control structure.
+                // You can add the misssing ones or rewrite this into your own control structure.
                 System.out.println("I'm a " + rc.getType() + "! Location " + rc.getLocation());
                 switch (rc.getType()) {
                     case HQ:                 runHQ();                break;
@@ -68,19 +74,39 @@ public strictfp class RobotPlayer {
     }
 
     static void runMiner() throws GameActionException {
+        // Let's get the location of HQ if the Miner doesn't know it.
+        if (HQlocation == null) {
+            RobotInfo[] robots = rc.senseNearbyRobots();
+            for (RobotInfo robot : robots) {
+                if (robot.type == RobotType.HQ && robot.team == rc.getTeam())
+                    HQlocation = robot.location;
+            }
+        } else {
+            // System.out.println("HQ location: " + HQlocation);
+        }
+
         tryBlockchain();
-        tryMove(randomDirection());
-        if (tryMove(randomDirection()))
-            System.out.println("I moved!");
-        // tryBuild(randomSpawnedByMiner(), randomDirection());
-        for (Direction dir : directions)
-            tryBuild(RobotType.FULFILLMENT_CENTER, dir);
+
+        // Loop in all directions and try to build in that direction
+        //for (Direction dir : directions)
+        //    tryBuild(RobotType.FULFILLMENT_CENTER, dir);
+
+        // Loop in all directions and try to refine in that direction
         for (Direction dir : directions)
             if (tryRefine(dir))
                 System.out.println("I refined soup! " + rc.getTeamSoup());
+
+        // If we can't refine we than try to Mine.
+        // Check again all direction and try to mine
         for (Direction dir : directions)
             if (tryMine(dir))
                 System.out.println("I mined soup! " + rc.getSoupCarrying());
+
+        // Try to move after cheking to do stuff since it is less important.
+        // Moving brings cooldown to 2. This will stop the miner from doinig other things.
+        // tryMove(randomDirection()); With this line it will try to move.
+        if (tryMove(randomDirection()))
+            System.out.println("I moved!");
     }
 
     static void runRefinery() throws GameActionException {
