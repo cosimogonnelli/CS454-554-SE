@@ -87,6 +87,7 @@ public strictfp class RobotPlayer {
 
         tryBlockchain();
 
+        // TODO: not sure whenre to put this code for the strategy
         // Loop in all directions and try to build in that direction
         //for (Direction dir : directions)
         //    tryBuild(RobotType.FULFILLMENT_CENTER, dir);
@@ -101,6 +102,16 @@ public strictfp class RobotPlayer {
         for (Direction dir : directions)
             if (tryMine(dir))
                 System.out.println("I mined soup! " + rc.getSoupCarrying());
+
+            // With max soup limit return to the HQ otherwise move randomly
+            if(rc.getSoupCarrying() == 100) {
+                System.out.println("Time to go back to HQ");
+                Direction toHQ = rc.getLocation().directionTo(HQlocation);
+                tryMove(toHQ);
+            } else {
+                System.out.println("Keep moving around to get soup");
+                tryMove(randomDirection());
+            }
 
         // Try to move after cheking to do stuff since it is less important.
         // Moving brings cooldown to 2. This will stop the miner from doinig other things.
