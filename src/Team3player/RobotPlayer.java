@@ -27,6 +27,7 @@ public strictfp class RobotPlayer {
      */
     static MapLocation HQlocation;
     static MapLocation Reflocation;
+    static int minerCount = 0;
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -69,13 +70,16 @@ public strictfp class RobotPlayer {
             }
         }
     }
-
+    //Build Miners for 250 to begin, after that prioritize refineries unless there are fewer than 5 miners
     static void runHQ() throws GameActionException {
-        if(Reflocation != null && rc.getTeamSoup() > 100)
+        if((Reflocation != null && rc.getTeamSoup() > 400) || minerCount <= 5) {
             tryBuild(RobotType.MINER, randomDirection());
-        else if(turnCount < 75)
-            tryBuild(RobotType.MINER,randomDirection());
-
+            ++minerCount;
+        }
+        else if(turnCount < 250) {
+            tryBuild(RobotType.MINER, randomDirection());
+            ++minerCount;
+        }
 
     }
 
@@ -117,12 +121,13 @@ public strictfp class RobotPlayer {
             if (tryMine(dir))
                 System.out.println("I mined soup! " + rc.getSoupCarrying());
 
-            // With max soup limit return to the HQ otherwise move randomly
+            // With max soup limit and no refineries return to the HQ otherwise move randomly
             if(rc.getSoupCarrying() == 100 && Reflocation == null) {
                 System.out.println("Time to go back to HQ");
                 Direction toHQ = rc.getLocation().directionTo(HQlocation);
                 tryMove(toHQ);
             }
+            //Return to a refinery to refine when full of soup
             else if (rc.getSoupCarrying() == 100){
                 System.out.println("Time to go refine");
                 Direction toRef= rc.getLocation().directionTo(Reflocation);
