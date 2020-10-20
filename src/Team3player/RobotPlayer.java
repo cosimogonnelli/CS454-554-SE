@@ -1,6 +1,8 @@
 package Team3player;
 import battlecode.common.*;
 
+import java.sql.Ref;
+
 public strictfp class RobotPlayer {
     static RobotController rc;
 
@@ -24,7 +26,7 @@ public strictfp class RobotPlayer {
      * This will be used by the Miner to go back to deposit soup.
      */
     static MapLocation HQlocation;
-
+    static MapLocation Reflocation;
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -69,8 +71,12 @@ public strictfp class RobotPlayer {
     }
 
     static void runHQ() throws GameActionException {
-        for (Direction dir : directions)
-            tryBuild(RobotType.MINER, dir);
+        if(Reflocation != null && rc.getTeamSoup() > 100)
+            tryBuild(RobotType.MINER, randomDirection());
+        else if(turnCount < 75)
+            tryBuild(RobotType.MINER,randomDirection());
+
+
     }
 
     static void runMiner() throws GameActionException {
@@ -87,10 +93,18 @@ public strictfp class RobotPlayer {
 
         tryBlockchain();
 
-        // TODO: not sure whenre to put this code for the strategy
-        // Loop in all directions and try to build in that direction
-        //for (Direction dir : directions)
-        //    tryBuild(RobotType.FULFILLMENT_CENTER, dir);
+
+        //Builds refinery and creates location pointer to it
+        if(tryBuild(RobotType.REFINERY, randomDirection()))
+            System.out.println("A refinery was built!");
+
+        if (Reflocation== null) {
+            RobotInfo[] robots = rc.senseNearbyRobots();
+            for (RobotInfo robot : robots) {
+                if (robot.type == RobotType.REFINERY && robot.team == rc.getTeam())
+                    Reflocation = robot.location;
+            }
+        }
 
         // Loop in all directions and try to refine in that direction
         for (Direction dir : directions)
@@ -104,12 +118,19 @@ public strictfp class RobotPlayer {
                 System.out.println("I mined soup! " + rc.getSoupCarrying());
 
             // With max soup limit return to the HQ otherwise move randomly
-            if(rc.getSoupCarrying() == 100) {
+            if(rc.getSoupCarrying() == 100 && Reflocation == null) {
                 System.out.println("Time to go back to HQ");
                 Direction toHQ = rc.getLocation().directionTo(HQlocation);
                 tryMove(toHQ);
-            } else {
-                System.out.println("Keep moving around to get soup");
+            }
+            else if (rc.getSoupCarrying() == 100){
+                System.out.println("Time to go refine");
+                Direction toRef= rc.getLocation().directionTo(Reflocation);
+                tryMove(toRef);
+
+            }
+            else {
+                System.out.println("Keep moving around to get soup Soup: "+rc.getSoupCarrying());
                 tryMove(randomDirection());
             }
 
