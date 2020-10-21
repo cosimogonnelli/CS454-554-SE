@@ -91,12 +91,9 @@ public strictfp class RobotPlayer {
                 if (robot.type == RobotType.HQ && robot.team == rc.getTeam())
                     HQlocation = robot.location;
             }
-        } else {
-            // System.out.println("HQ location: " + HQlocation);
         }
 
         tryBlockchain();
-
 
         //Builds refinery and creates location pointer to it
         if(tryBuild(RobotType.REFINERY, randomDirection()))
@@ -111,37 +108,39 @@ public strictfp class RobotPlayer {
         }
 
         // Loop in all directions and try to refine in that direction
-        for (Direction dir : directions)
+        for (Direction dir : directions) {
             if (tryRefine(dir))
                 System.out.println("I refined soup! " + rc.getTeamSoup());
+        }
 
         // If we can't refine we than try to Mine.
         // Check again all direction and try to mine
-        for (Direction dir : directions)
+        for (Direction dir : directions) {
             if (tryMine(dir))
                 System.out.println("I mined soup! " + rc.getSoupCarrying());
 
             // With max soup limit and no refineries return to the HQ otherwise move randomly
-            if(rc.getSoupCarrying() == RobotType.MINER.soupLimit && Reflocation == null) {
+            if (rc.getSoupCarrying() == RobotType.MINER.soupLimit && Reflocation == null) {
                 System.out.println("Time to go back to HQ");
                 Direction toHQ = rc.getLocation().directionTo(HQlocation);
                 tryMove(toHQ);
             }
-            else if (!checkNearby(RobotType.DESIGN_SCHOOL)) {
-                if (tryBuild(RobotType.DESIGN_SCHOOL , randomDirection()))
-                    System.out.println("A design school was built!");
-            }
             //Return to a refinery to refine when full of soup
-            else if (rc.getSoupCarrying() == RobotType.MINER.soupLimit){
+            if (rc.getSoupCarrying() == RobotType.MINER.soupLimit) {
                 System.out.println("Time to go refine");
-                Direction toRef= rc.getLocation().directionTo(Reflocation);
+                Direction toRef = rc.getLocation().directionTo(Reflocation);
                 tryMove(toRef);
 
-            }
-            else {
-                System.out.println("Keep moving around to get soup Soup: "+rc.getSoupCarrying());
+            } else {
+                System.out.println("Keep moving around to get Soup: " + rc.getSoupCarrying());
                 tryMove(randomDirection());
             }
+
+            if (!checkNearby(RobotType.DESIGN_SCHOOL)) {
+                if (tryBuild(RobotType.DESIGN_SCHOOL, randomDirection()))
+                    System.out.println("A design school was built!");
+            }
+        }
 
         // Try to move after cheking to do stuff since it is less important.
         // Moving brings cooldown to 2. This will stop the miner from doinig other things.
