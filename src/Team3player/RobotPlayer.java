@@ -122,13 +122,17 @@ public strictfp class RobotPlayer {
                 System.out.println("I mined soup! " + rc.getSoupCarrying());
 
             // With max soup limit and no refineries return to the HQ otherwise move randomly
-            if(rc.getSoupCarrying() == 100 && Reflocation == null) {
+            if(rc.getSoupCarrying() == RobotType.MINER.soupLimit && Reflocation == null) {
                 System.out.println("Time to go back to HQ");
                 Direction toHQ = rc.getLocation().directionTo(HQlocation);
                 tryMove(toHQ);
             }
+            else if (!checkNearby(RobotType.DESIGN_SCHOOL)) {
+                if (tryBuild(RobotType.DESIGN_SCHOOL , randomDirection()))
+                    System.out.println("A design school was built!");
+            }
             //Return to a refinery to refine when full of soup
-            else if (rc.getSoupCarrying() == 100){
+            else if (rc.getSoupCarrying() == RobotType.MINER.soupLimit){
                 System.out.println("Time to go refine");
                 Direction toRef= rc.getLocation().directionTo(Reflocation);
                 tryMove(toRef);
@@ -155,7 +159,9 @@ public strictfp class RobotPlayer {
     }
 
     static void runDesignSchool() throws GameActionException {
-
+        for (Direction dir : directions)
+            if (tryBuild(RobotType.LANDSCAPER, dir))
+                System.out.println("Create landscaper");
     }
 
     static void runFulfillmentCenter() throws GameActionException {
@@ -202,6 +208,18 @@ public strictfp class RobotPlayer {
      *
      * @return a random RobotType
      */
+
+    // Check any nearby robots or buildings
+    static boolean checkNearby(RobotType target) throws GameActionException {
+        RobotInfo[] robots = rc.senseNearbyRobots();
+        for (RobotInfo r : robots) {
+            if (r.getType() == target) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     static RobotType randomSpawnedByMiner() {
         return spawnedByMiner[(int) (Math.random() * spawnedByMiner.length)];
     }
