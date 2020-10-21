@@ -113,10 +113,9 @@ public strictfp class RobotPlayer {
         tryBlockchain();
 
         //Builds refinery and creates location pointer to it
-        if(turnCount > 375) {
-            if (tryBuild(RobotType.REFINERY, randomDirection()))
-                System.out.println("A refinery was built!");
-        }
+
+        if (tryBuild(RobotType.REFINERY, randomDirection()))
+            System.out.println("A refinery was built!");
 
         if (Reflocation== null) {
             RobotInfo[] robots = rc.senseNearbyRobots();
