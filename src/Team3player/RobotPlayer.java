@@ -49,6 +49,10 @@ public strictfp class RobotPlayer {
                 // Here, we've separated the controls into a different method for each RobotType.
                 // You can add the misssing ones or rewrite this into your own control structure.
                 System.out.println("I'm a " + rc.getType() + "! Location " + rc.getLocation());
+
+                // Try to find the HQ at every term
+                findHQ();
+
                 switch (rc.getType()) {
                     case HQ:                 runHQ();                break;
                     case MINER:              runMiner();             break;
@@ -70,6 +74,20 @@ public strictfp class RobotPlayer {
             }
         }
     }
+
+    // Try to find the HQ at every turn
+    static void findHQ() throws GameActionException {
+        if (HQlocation == null) {
+            RobotInfo[] robots = rc.senseNearbyRobots();
+            for (RobotInfo robot : robots) {
+                if (robot.type == RobotType.HQ && robot.team == rc.getTeam())
+                    HQlocation = robot.location;
+            }
+        }
+        // TODO: Implement to find HQ even when robot are not close enough to find it.
+        // Use blockchain to brodcast location
+    }
+
     //Build Miners for 250 to begin, after that prioritize refineries unless there are fewer than 5 miners
     static void runHQ() throws GameActionException {
         if((Reflocation != null && rc.getTeamSoup() > 400) || minerCount <= 5) {
@@ -80,18 +98,13 @@ public strictfp class RobotPlayer {
             tryBuild(RobotType.MINER, randomDirection());
             ++minerCount;
         }
-
     }
 
+    /******************* STRATEGY *********************
+
+     */
+
     static void runMiner() throws GameActionException {
-        // Let's get the location of HQ if the Miner doesn't know it.
-        if (HQlocation == null) {
-            RobotInfo[] robots = rc.senseNearbyRobots();
-            for (RobotInfo robot : robots) {
-                if (robot.type == RobotType.HQ && robot.team == rc.getTeam())
-                    HQlocation = robot.location;
-            }
-        }
 
         tryBlockchain();
 
@@ -169,7 +182,33 @@ public strictfp class RobotPlayer {
     }
 
     static void runLandscaper() throws GameActionException {
-
+        if (rc.getDirtCarrying() == 0) {
+            tryToDig();
+        }
+        if (HQlocation != null) {
+            MapLocation bestPlaceToBuildWall = null;
+            int lowestElevation = 9999999;
+            // Loop over tiles around HQ and try to add that direction to get all 8 tiles around HQ
+            for (Direction dir : directions) {
+                MapLocation tileToCheck = HQlocation.add(dir);
+                // If we are close enough to HQ and we can deposit dirt we do it
+                // 4 since the square with 0 at the center is: "212,101,212"
+                if (rc.getLocation().distanceSquaredTo(tileToCheck) < 4 &&
+                        rc.canDepositDirt(rc.getLocation().directionTo(tileToCheck))) {
+                    // Add dirt to the lowes elevation tile
+                    if (rc.senseElevation(tileToCheck) < lowestElevation) {
+                        lowestElevation = rc.senseElevation(tileToCheck);
+                                bestPlaceToBuildWall = tileToCheck;
+                    }
+                }
+            }
+            if (bestPlaceToBuildWall != null) {
+                rc.depositDirt(rc.getLocation().directionTo(bestPlaceToBuildWall));
+                System.out.println("Build a wall!");
+            }
+        }
+        // Move if HQ not found
+        tryMove(randomDirection());
     }
 
     static void runDeliveryDrone() throws GameActionException {
@@ -215,6 +254,15 @@ public strictfp class RobotPlayer {
             if (r.getType() == target) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    static boolean tryToDig() throws GameActionException {
+        Direction dir = randomDirection();
+        if (rc.canDigDirt(dir)) {
+            rc.digDirt(dir);
+            return true;
         }
         return false;
     }
