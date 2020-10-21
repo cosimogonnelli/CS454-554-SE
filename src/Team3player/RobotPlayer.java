@@ -113,8 +113,10 @@ public strictfp class RobotPlayer {
         tryBlockchain();
 
         //Builds refinery and creates location pointer to it
-        if(tryBuild(RobotType.REFINERY, randomDirection()))
-            System.out.println("A refinery was built!");
+        if(turnCount > 375) {
+            if (tryBuild(RobotType.REFINERY, randomDirection()))
+                System.out.println("A refinery was built!");
+        }
 
         if (Reflocation== null) {
             RobotInfo[] robots = rc.senseNearbyRobots();
@@ -143,7 +145,7 @@ public strictfp class RobotPlayer {
                 tryMove(toHQ);
             }
             //Return to a refinery to refine when full of soup
-            if (rc.getSoupCarrying() == RobotType.MINER.soupLimit) {
+            if (rc.getSoupCarrying() == RobotType.MINER.soupLimit && Reflocation != null) {
                 System.out.println("Time to go refine");
                 if (Reflocation != null) {
                     Direction toRef = rc.getLocation().directionTo(Reflocation);
@@ -154,7 +156,7 @@ public strictfp class RobotPlayer {
                 System.out.println("Keep moving around to get Soup: " + rc.getSoupCarrying());
                 tryMove(randomDirection());
             }
-            if (turnCount > 400) {
+            if (turnCount > 275) {
                 if (!checkNearby(RobotType.DESIGN_SCHOOL)) {
                     if (tryBuild(RobotType.DESIGN_SCHOOL, randomDirection()))
                         System.out.println("A design school was built!");
