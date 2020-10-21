@@ -50,7 +50,7 @@ public strictfp class RobotPlayer {
                 // You can add the misssing ones or rewrite this into your own control structure.
                 System.out.println("I'm a " + rc.getType() + "! Location " + rc.getLocation());
 
-                // Try to find the HQ at every term
+                // Try to find the HQ at every turn
                 findHQ();
 
                 switch (rc.getType()) {
@@ -100,9 +100,13 @@ public strictfp class RobotPlayer {
         }
     }
 
-    /******************* STRATEGY *********************
-
-     */
+    /******************* MINER STRATEGY *********************
+     * 1 - Build refinery if possible
+     * 2 - Look around and try to refinery
+     * 3 - If we can't refine we try to mine
+     * 4 - When full of soup we go to a refinery
+     * 5 - Try to build a design_school
+     *******************************************************/
 
     static void runMiner() throws GameActionException {
 
