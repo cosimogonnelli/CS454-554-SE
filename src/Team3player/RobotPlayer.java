@@ -94,7 +94,7 @@ public strictfp class RobotPlayer {
             tryBuild(RobotType.MINER, randomDirection());
             ++minerCount;
         }
-        else if(turnCount < 250) {
+        else if(turnCount < 150) {
             tryBuild(RobotType.MINER, randomDirection());
             ++minerCount;
         }
@@ -145,17 +145,20 @@ public strictfp class RobotPlayer {
             //Return to a refinery to refine when full of soup
             if (rc.getSoupCarrying() == RobotType.MINER.soupLimit) {
                 System.out.println("Time to go refine");
-                Direction toRef = rc.getLocation().directionTo(Reflocation);
-                tryMove(toRef);
+                if (Reflocation != null) {
+                    Direction toRef = rc.getLocation().directionTo(Reflocation);
+                    tryMove(toRef);
+                }
 
             } else {
                 System.out.println("Keep moving around to get Soup: " + rc.getSoupCarrying());
                 tryMove(randomDirection());
             }
-
-            if (!checkNearby(RobotType.DESIGN_SCHOOL)) {
-                if (tryBuild(RobotType.DESIGN_SCHOOL, randomDirection()))
-                    System.out.println("A design school was built!");
+            if (turnCount > 400) {
+                if (!checkNearby(RobotType.DESIGN_SCHOOL)) {
+                    if (tryBuild(RobotType.DESIGN_SCHOOL, randomDirection()))
+                        System.out.println("A design school was built!");
+                }
             }
         }
 
