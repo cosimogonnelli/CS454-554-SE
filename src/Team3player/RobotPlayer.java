@@ -7,14 +7,14 @@ public strictfp class RobotPlayer {
     static RobotController rc;
 
     static Direction[] directions = {
-        Direction.NORTH,
-        Direction.NORTHEAST,
-        Direction.EAST,
-        Direction.SOUTHEAST,
-        Direction.SOUTH,
-        Direction.SOUTHWEST,
-        Direction.WEST,
-        Direction.NORTHWEST
+            Direction.NORTH,
+            Direction.NORTHEAST,
+            Direction.EAST,
+            Direction.SOUTHEAST,
+            Direction.SOUTH,
+            Direction.SOUTHWEST,
+            Direction.WEST,
+            Direction.NORTHWEST
     };
     static RobotType[] spawnedByMiner = {RobotType.REFINERY, RobotType.VAPORATOR, RobotType.DESIGN_SCHOOL,
             RobotType.FULFILLMENT_CENTER, RobotType.NET_GUN};
@@ -28,6 +28,7 @@ public strictfp class RobotPlayer {
     static MapLocation HQlocation;
     static MapLocation Reflocation;
     static int minerCount = 0;
+
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -54,15 +55,33 @@ public strictfp class RobotPlayer {
                 findHQ();
 
                 switch (rc.getType()) {
-                    case HQ:                 runHQ();                break;
-                    case MINER:              runMiner();             break;
-                    case REFINERY:           runRefinery();          break;
-                    case VAPORATOR:          runVaporator();         break;
-                    case DESIGN_SCHOOL:      runDesignSchool();      break;
-                    case FULFILLMENT_CENTER: runFulfillmentCenter(); break;
-                    case LANDSCAPER:         runLandscaper();        break;
-                    case DELIVERY_DRONE:     runDeliveryDrone();     break;
-                    case NET_GUN:            runNetGun();            break;
+                    case HQ:
+                        runHQ();
+                        break;
+                    case MINER:
+                        runMiner();
+                        break;
+                    case REFINERY:
+                        runRefinery();
+                        break;
+                    case VAPORATOR:
+                        runVaporator();
+                        break;
+                    case DESIGN_SCHOOL:
+                        runDesignSchool();
+                        break;
+                    case FULFILLMENT_CENTER:
+                        runFulfillmentCenter();
+                        break;
+                    case LANDSCAPER:
+                        runLandscaper();
+                        break;
+                    case DELIVERY_DRONE:
+                        runDeliveryDrone();
+                        break;
+                    case NET_GUN:
+                        runNetGun();
+                        break;
                 }
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
@@ -90,11 +109,10 @@ public strictfp class RobotPlayer {
 
     //Build Miners for 250 to begin, after that prioritize refineries unless there are fewer than 5 miners
     static void runHQ() throws GameActionException {
-        if((Reflocation != null && rc.getTeamSoup() > 400) || minerCount <= 5) {
+        if ((Reflocation != null && rc.getTeamSoup() > 400) || minerCount <= 5) {
             tryBuild(RobotType.MINER, randomDirection());
             ++minerCount;
-        }
-        else if(turnCount < 150) {
+        } else if (turnCount < 150) {
             tryBuild(RobotType.MINER, randomDirection());
             ++minerCount;
         }
@@ -110,14 +128,16 @@ public strictfp class RobotPlayer {
 
     static void runMiner() throws GameActionException {
 
-        tryBlockchain();
+        // tryBlockchain();
+        ArrayList<MapLocation> soupLocations = new ArrayList<MapLocation>();
+        ArrayList<MapLocation> refLocations = new ArrayList<MapLocation>();
 
         //Builds refinery and creates location pointer to it
 
         if (tryBuild(RobotType.REFINERY, randomDirection()))
             System.out.println("A refinery was built!");
 
-        if (Reflocation== null) {
+        if (Reflocation == null) {
             RobotInfo[] robots = rc.senseNearbyRobots();
             for (RobotInfo robot : robots) {
                 if (robot.type == RobotType.REFINERY && robot.team == rc.getTeam())
@@ -206,7 +226,7 @@ public strictfp class RobotPlayer {
                     // Add dirt to the lowes elevation tile
                     if (rc.senseElevation(tileToCheck) < lowestElevation) {
                         lowestElevation = rc.senseElevation(tileToCheck);
-                                bestPlaceToBuildWall = tileToCheck;
+                        bestPlaceToBuildWall = tileToCheck;
                     }
                 }
             }
@@ -314,7 +334,7 @@ public strictfp class RobotPlayer {
      * Attempts to build a given robot in a given direction.
      *
      * @param type The type of the robot to build
-     * @param dir The intended direction of movement
+     * @param dir  The intended direction of movement
      * @return true if a move was performed
      * @throws GameActionException
      */
@@ -364,5 +384,27 @@ public strictfp class RobotPlayer {
                 rc.submitTransaction(message, 10);
         }
         // System.out.println(rc.getRoundMessages(turnCount-1));
+    }
+
+    public void shareLocation(MapLocation loc, int resource) throws GameActionException {
+        int[] message = new int[7];
+        message[0] = 3333;
+        message[1] = resource;
+        message[2] = loc.x; // x coord of resource
+        message[3] = loc.y; // y coord of resource
+        if (rc.canSubmitTransaction(message, 3)) {
+            rc.submitTransaction(message, 3);
+            System.out.println("Found new soup!" + loc);
+        }
+    }
+
+    public void updateSoupLocations(ArrayList<MapLocation> soupLocations) throws GameActionException {
+        for(Transaction tx : rc.getBlock(rc.getRoundNum() - 1)) {
+            int[] mess = tx.getMessage();
+            if(mess[0] == 3333 && mess[1] == 0){
+                // TODO: don't add duplicate locations
+                soupLocations.add(new MapLocation(mess[2], mess[3]));
+            }
+        }
     }
 }
