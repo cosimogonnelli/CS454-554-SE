@@ -46,19 +46,19 @@ public class Miner extends Unit {
             if (rc.getSoupCarrying() == RobotType.MINER.soupLimit && RefLocation == null) {
                 System.out.println("Time to go back to HQ");
                 Direction toHQ = rc.getLocation().directionTo(HQLocation);
-                tryMove(toHQ);
+                goTo(toHQ);
             }
             //Return to a refinery to refine when full of soup
             if (rc.getSoupCarrying() == RobotType.MINER.soupLimit && RefLocation != null) {
                 System.out.println("Time to go refine");
                 if (RefLocation != null) {
                     Direction toRef = rc.getLocation().directionTo(RefLocation);
-                    tryMove(toRef);
+                    goTo(toRef);
                 }
 
             } else {
                 System.out.println("Keep moving around to get Soup: " + rc.getSoupCarrying());
-                tryMove(randomDirection());
+                goTo(randomDirection());
             }
             if (turn > 275) {
                 if (!checkNearby(RobotType.DESIGN_SCHOOL)) {
@@ -71,7 +71,7 @@ public class Miner extends Unit {
         // Try to move after checking to do stuff since it is less important.
         // Moving brings cooldown to 2. This will stop the miner from doing other things.
         // tryMove(randomDirection()); With this line it will try to move.
-        if (tryMove(randomDirection()))
+        if (goTo(randomDirection()))
             System.out.println("I moved!");
     }
 
