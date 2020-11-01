@@ -22,7 +22,7 @@ public class Unit extends Robot {
      */
     boolean tryMove(Direction dir) throws GameActionException {
         // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
-        if (rc.isReady() && rc.canMove(dir) && !rc.senseFlooding(rc.getLocation().add(dir))) {
+        if (rc.isReady() && rc.canMove(dir)) {
             rc.move(dir);
             return true;
         } else return false;
@@ -51,25 +51,5 @@ public class Unit extends Robot {
                 rc.submitTransaction(message, 10);
         }
         // System.out.println(rc.getRoundMessages(turnCount-1));
-    }
-
-    // Move in a more smart way trying direction is order
-    boolean goTo(Direction dir) throws GameActionException {
-        Direction[] toTry = {
-                dir,
-                dir.rotateRight(),
-                dir.rotateRight().rotateRight(),
-                dir.rotateRight().rotateRight().rotateRight()
-        };
-        for (Direction d : toTry) {
-            if (tryMove(d))
-                return true;
-        }
-        return false;
-    }
-
-    // Move towards a target
-    boolean goToLocation(MapLocation d) throws GameActionException {
-        return goTo(rc.getLocation().directionTo(d));
     }
 }
