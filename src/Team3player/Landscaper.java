@@ -37,7 +37,7 @@ public class Landscaper extends Unit {
             }
         }
         // Move if HQ not found
-        tryMove(randomDirection());
+        goTo(randomDirection());
     }
 
     boolean tryToDig() throws GameActionException {
