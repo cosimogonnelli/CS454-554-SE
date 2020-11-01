@@ -60,12 +60,15 @@ public class Miner extends Unit {
                 System.out.println("Keep moving around to get Soup: " + rc.getSoupCarrying());
                 tryMove(randomDirection());
             }
-            if (turn > 275) {
-                if (!checkNearby(RobotType.DESIGN_SCHOOL)) {
+                if (!checkNearby(RobotType.DESIGN_SCHOOL) && turn > 50) {
                     if (tryBuild(RobotType.DESIGN_SCHOOL, randomDirection()))
                         System.out.println("A design school was built!");
                 }
-            }
+                if(!checkNearby(RobotType.FULFILLMENT_CENTER)){
+                    if(tryBuild(RobotType.FULFILLMENT_CENTER, randomDirection()))
+                    System.out.println("A fulfillment center has been built");
+                }
+
         }
 
         // Try to move after checking to do stuff since it is less important.

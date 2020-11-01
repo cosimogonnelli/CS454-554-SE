@@ -35,7 +35,7 @@ public strictfp class RobotPlayer {
                 gundam = new Landscaper(rc);
                 break;
             case DELIVERY_DRONE:
-                gundam = new Unit(rc);
+                gundam = new Drone(rc);
                 break;
             //case NET_GUN:
             // gundam = new Shooter(rc);
