@@ -18,9 +18,10 @@ public class Miner extends Unit {
         super.takeTurn();
 
         //Builds refinery and creates location pointer to it
-
-        if (tryBuild(RobotType.REFINERY, randomDirection()))
-            System.out.println("A refinery was built!");
+        if(turn > 450) {
+            if (tryBuild(RobotType.REFINERY, randomDirection()))
+                System.out.println("A refinery was built!");
+        }
 
         if (RefLocation == null) {
             RobotInfo[] robots = rc.senseNearbyRobots();
