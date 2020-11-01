@@ -13,13 +13,10 @@ public class HQ extends Robot {
         super.takeTurn();
 
         //Build Miners for 250 to begin, after that prioritize refineries unless there are fewer than 5 miners
-        if((RefLocation != null && rc.getTeamSoup() > 400) || minerCount <= 5) {
-            tryBuild(RobotType.MINER, randomDirection());
-            ++minerCount;
-        }
-        else if(turn < 150) {
-            tryBuild(RobotType.MINER, randomDirection());
-            ++minerCount;
+        if(minerCount < 8) {
+            for (Direction dir : directions)
+                if (tryBuild(RobotType.MINER, randomDirection()))
+                    ++minerCount;
         }
     }
 }
