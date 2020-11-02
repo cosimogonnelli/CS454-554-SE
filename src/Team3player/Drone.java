@@ -9,7 +9,7 @@ public class Drone extends Unit {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
-        tryMove(randomDirection());
+        goTo(randomDirection());
         Team enemy = rc.getTeam().opponent();
         if (!rc.isCurrentlyHoldingUnit()) {
             // See if there are any enemy robots within capturing range
