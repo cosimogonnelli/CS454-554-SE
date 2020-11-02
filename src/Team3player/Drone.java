@@ -22,7 +22,7 @@ public class Drone extends Unit {
             }
         } else {
             // No close robots, so search for robots within sight radius
-            tryMove(randomDirection());
+            goTo(randomDirection());
         }
     }
 }
