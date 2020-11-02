@@ -12,8 +12,10 @@ public class DesignSchool extends Robot {
         super.takeTurn();
         if(LsCount < 2) {
             for (Direction dir : directions)
-                if (tryBuild(RobotType.LANDSCAPER, dir))
+                if (tryBuild(RobotType.LANDSCAPER, dir)) {
                     System.out.println("Create landscaper");
+                    ++LsCount;
+                }
         }
     }
 }
