@@ -14,12 +14,12 @@ public class Landscaper extends Unit {
             if (tryToDig())
                 System.out.println("I got some dirt! ");
         }
-        if (HQLocation != null) {
+        if (HQLocation.size() > 0) {
             MapLocation bestPlaceToBuildWall = null;
             int lowestElevation = 9999999;
             // Loop over tiles around HQ and try to add that direction to get all 8 tiles around HQ
             for (Direction dir : directions) {
-                MapLocation tileToCheck = HQLocation.add(dir);
+                MapLocation tileToCheck = HQLocation.get(0).add(dir);
                 // If we are close enough to HQ and we can deposit dirt we do it
                 // 4 since the square with 0 at the center is: "212,101,212"
                 if (rc.getLocation().distanceSquaredTo(tileToCheck) < 4 &&

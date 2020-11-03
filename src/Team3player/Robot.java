@@ -6,8 +6,7 @@ public class Robot {
 
     RobotController rc;
     Radio radio;
-    MapLocation HQLocation;
-    ArrayList<MapLocation> refineryLocations;
+    ArrayList<MapLocation> HQLocation = new ArrayList<>();
     int turn = 0;
 
     static Direction[] directions = {
@@ -34,8 +33,8 @@ public class Robot {
      * Attempts to build a given robot in a given direction.
      *
      * @param type The type of the robot to build
-     * @param dir The intended direction of movement
-     * @return true if a move was performed
+     * @param dir The intended direction of build
+     * @return true if a build was performed
      * @throws GameActionException
      */
     boolean tryBuild(RobotType type, Direction dir) throws GameActionException {

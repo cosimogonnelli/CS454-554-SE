@@ -9,7 +9,6 @@ public class Unit extends Robot {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
-
         findHQ();
     }
 
@@ -29,28 +28,22 @@ public class Unit extends Robot {
     }
 
     // Try to find the HQ at every turn
+    // If HQ is nearby, mark it on map and share it on blockchain
+    // If still not found, check blockchain for HQ location
     void findHQ() throws GameActionException {
-        if (HQLocation == null) {
+        if (HQLocation.size() == 0) {
             RobotInfo[] robots = rc.senseNearbyRobots();
             for (RobotInfo robot : robots) {
-                if (robot.type == RobotType.HQ && robot.team == rc.getTeam())
-                    HQLocation = robot.location;
+                if (robot.type == RobotType.HQ && robot.team == rc.getTeam()) {
+                    MapLocation HQLoc = robot.location;
+                    HQLocation.add(HQLoc);
+                    radio.shareLocation(HQLoc, 0);
+                }
             }
         }
-        // TODO: Implement to find HQ even when robot are not close enough to find it.
-        // Use blockchain to broadcast location
-    }
-
-    void tryBlockchain() throws GameActionException {
-        if (turn < 3) {
-            int[] message = new int[7];
-            for (int i = 0; i < 7; i++) {
-                message[i] = 123;
-            }
-            if (rc.canSubmitTransaction(message, 10))
-                rc.submitTransaction(message, 10);
+        if (HQLocation.size() == 0) {
+            radio.updateMap(HQLocation, 0);
         }
-        // System.out.println(rc.getRoundMessages(turnCount-1));
     }
 
     // Move in a more smart way trying direction is order
