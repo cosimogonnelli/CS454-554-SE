@@ -133,9 +133,10 @@ public strictfp class RobotPlayer {
         ArrayList<MapLocation> refLocations = new ArrayList<MapLocation>();
 
         //Builds refinery and creates location pointer to it
-
-        if (tryBuild(RobotType.REFINERY, randomDirection()))
-            System.out.println("A refinery was built!");
+        if(turnCount > 375) {
+            if (tryBuild(RobotType.REFINERY, randomDirection()))
+                System.out.println("A refinery was built!");
+        }
 
         if (Reflocation == null) {
             RobotInfo[] robots = rc.senseNearbyRobots();
