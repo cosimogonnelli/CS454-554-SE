@@ -29,19 +29,6 @@ public class Miner extends Unit {
         // Check if nearby soup is depleted
         updateSoupMap();
 
-        // Builds refinery and creates location pointer to it
-        // distance from HQ > some good amount
-        // is next to soup
-        if (turn > 450) {
-            Direction dir = randomDirection();
-            if (tryBuild(RobotType.REFINERY, dir)) {
-                MapLocation refineryLoc = rc.getLocation().add(dir);
-                System.out.println("A refinery was built!");
-                refineryMap.add(refineryLoc);
-                radio.shareLocation(refineryLoc, 2);
-            }
-        }
-
         // Add any new refinery locations discovered
         RobotInfo[] robots = rc.senseNearbyRobots();
         for (RobotInfo robot : robots) {
@@ -64,6 +51,23 @@ public class Miner extends Unit {
                 if (!soupMap.contains(soupLoc)) {
                     radio.shareLocation(soupLoc, 1);
                     soupMap.add(soupLoc);
+                }
+                // While we are next to the soup, determine if we should build refinery
+                // If no refineries, definitely try to build refinery
+                // Else If distance from other refineries > some good amount, try build refinery
+                // Adds it to map, share loc on blockchain
+                if (refineryMap.size() == 0) {
+                    // Find a good adjacent location that isn't the soup location
+                    Direction adj = randomDirection();
+                    while(adj == dir) {
+                        adj = randomDirection();
+                    }
+                    if (tryBuild(RobotType.REFINERY, adj)) {
+                        MapLocation refineryLoc = rc.getLocation().add(adj);
+                        System.out.println("A refinery was built!");
+                        refineryMap.add(refineryLoc);
+                        radio.shareLocation(refineryLoc, 2);
+                    }
                 }
             }
         }
@@ -92,7 +96,7 @@ public class Miner extends Unit {
             if (tryBuild(RobotType.DESIGN_SCHOOL, randomDirection()))
                 System.out.println("A design school was built!");
         }
-        if (!checkNearby(RobotType.FULFILLMENT_CENTER)) {
+        if (!checkNearby(RobotType.FULFILLMENT_CENTER) && turn > 30) {
             if (tryBuild(RobotType.FULFILLMENT_CENTER, randomDirection()))
                 System.out.println("A fulfillment center has been built");
         }
