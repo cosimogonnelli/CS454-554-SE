@@ -1,11 +1,13 @@
 package Team3player;
 import battlecode.common.*;
+import java.util.ArrayList;
 
 public class Robot {
 
     RobotController rc;
+    Radio radio;
     MapLocation HQLocation;
-    MapLocation RefLocation;
+    ArrayList<MapLocation> refineryLocations;
     int turn = 0;
 
     static Direction[] directions = {

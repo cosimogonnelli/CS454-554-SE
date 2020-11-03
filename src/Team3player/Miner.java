@@ -1,7 +1,10 @@
 package Team3player;
 import battlecode.common.*;
+import java.util.ArrayList;
 
 public class Miner extends Unit {
+
+    ArrayList<MapLocation> soupMap = new ArrayList<MapLocation>();
 
     public Miner(RobotController r) {
         super(r);
@@ -9,7 +12,7 @@ public class Miner extends Unit {
 
     /******************* MINER STRATEGY *********************
      * 1 - Build refinery if possible
-     * 2 - Look around and try to refinery
+     * 2 - Look around and try to refine
      * 3 - If we can't refine we try to mine
      * 4 - When full of soup we go to a refinery
      * 5 - Try to build a design_school
@@ -23,12 +26,11 @@ public class Miner extends Unit {
                 System.out.println("A refinery was built!");
         }
 
-        if (RefLocation == null) {
-            RobotInfo[] robots = rc.senseNearbyRobots();
-            for (RobotInfo robot : robots) {
-                if (robot.type == RobotType.REFINERY && robot.team == rc.getTeam())
-                    RefLocation = robot.location;
-            }
+        // Add any new refinery locations discovered
+        RobotInfo[] robots = rc.senseNearbyRobots();
+        for (RobotInfo robot : robots) {
+            if (robot.type == RobotType.REFINERY && robot.team == rc.getTeam())
+                refineryLocations.add(robot.location);
         }
 
         // Loop in all directions and try to refine in that direction
@@ -40,43 +42,46 @@ public class Miner extends Unit {
         // If we can't refine we than try to Mine.
         // Check again all direction and try to mine
         for (Direction dir : directions) {
-            if (tryMine(dir))
+            if (tryMine(dir)) {
                 System.out.println("I mined soup! " + rc.getSoupCarrying());
-
-            // With max soup limit and no refineries return to the HQ otherwise move randomly
-            if (rc.getSoupCarrying() == RobotType.MINER.soupLimit && RefLocation == null) {
-                System.out.println("Time to go back to HQ");
-                Direction toHQ = rc.getLocation().directionTo(HQLocation);
-                goTo(toHQ);
+                MapLocation soupLoc = rc.getLocation().add(dir);
+                if (!soupMap.contains(soupLoc)) {
+                    radio.shareSoupLocation(soupLoc);
+                }
             }
-            //Return to a refinery to refine when full of soup
-            if (rc.getSoupCarrying() == RobotType.MINER.soupLimit && RefLocation != null) {
-                System.out.println("Time to go refine");
-                if (RefLocation != null) {
-                    Direction toRef = rc.getLocation().directionTo(RefLocation);
-                    goTo(toRef);
-                }
-
-            } else {
-                System.out.println("Keep moving around to get Soup: " + rc.getSoupCarrying());
-                goTo(randomDirection());
-            }
-                if (!checkNearby(RobotType.DESIGN_SCHOOL) && turn > 50) {
-                    if (tryBuild(RobotType.DESIGN_SCHOOL, randomDirection()))
-                        System.out.println("A design school was built!");
-                }
-                if(!checkNearby(RobotType.FULFILLMENT_CENTER)){
-                    if(tryBuild(RobotType.FULFILLMENT_CENTER, randomDirection()))
-                    System.out.println("A fulfillment center has been built");
-                }
-
         }
 
-        // Try to move after checking to do stuff since it is less important.
-        // Moving brings cooldown to 2. This will stop the miner from doing other things.
-        // tryMove(randomDirection()); With this line it will try to move.
-        if (goTo(randomDirection()))
-            System.out.println("I moved!");
+        // Check the blockchain for soup locations
+        radio.updateSoupMap(soupMap);
+
+        // With max soup limit, go to nearest refinery
+        // If no refineries, go refine at HQ
+        // Under max soup limit, go to nearest soup location
+        // If no known soup locations, move randomly
+        if (rc.getSoupCarrying() == RobotType.MINER.soupLimit) {
+            System.out.println("I'm full of soup.");
+            if (refineryLocations.size() > 0) {
+                System.out.println("Going to the nearest refinery");
+                goToLocation(refineryLocations.get(0));
+            } else {
+                System.out.println("No refineries, going to HQ");
+                goToLocation(HQLocation);
+            }
+        } else if (soupMap.size() > 0){
+            goToLocation(soupMap.get(0));
+        } else {
+            System.out.println("Keep moving around to get Soup: " + rc.getSoupCarrying());
+            goTo(randomDirection());
+        }
+
+        if (!checkNearby(RobotType.DESIGN_SCHOOL) && turn > 50) {
+            if (tryBuild(RobotType.DESIGN_SCHOOL, randomDirection()))
+                System.out.println("A design school was built!");
+        }
+        if(!checkNearby(RobotType.FULFILLMENT_CENTER)){
+            if(tryBuild(RobotType.FULFILLMENT_CENTER, randomDirection()))
+            System.out.println("A fulfillment center has been built");
+        }
     }
 
     /**
