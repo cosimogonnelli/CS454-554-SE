@@ -20,6 +20,9 @@ public class Miner extends Unit {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
 
+        // Check the blockchain for soup locations
+        radio.updateSoupMap(soupMap);
+
         //Builds refinery and creates location pointer to it
         if(turn > 450) {
             if (tryBuild(RobotType.REFINERY, randomDirection()))
@@ -49,38 +52,38 @@ public class Miner extends Unit {
                     radio.shareSoupLocation(soupLoc);
                 }
             }
-        }
 
-        // Check the blockchain for soup locations
-        radio.updateSoupMap(soupMap);
-
-        // With max soup limit, go to nearest refinery
-        // If no refineries, go refine at HQ
-        // Under max soup limit, go to nearest soup location
-        // If no known soup locations, move randomly
-        if (rc.getSoupCarrying() == RobotType.MINER.soupLimit) {
-            System.out.println("I'm full of soup.");
-            if (refineryLocations.size() > 0) {
-                System.out.println("Going to the nearest refinery");
-                goToLocation(refineryLocations.get(0));
+            // With max soup limit, go to nearest refinery
+            // If no refineries, go refine at HQ
+            // Under max soup limit, go to nearest soup location
+            // If no known soup locations, move randomly
+            if (rc.getSoupCarrying() == RobotType.MINER.soupLimit) {
+                System.out.println("I'm full of soup.");
+                if (refineryLocations.size() > 0) {
+                    System.out.println("Going to the nearest refinery");
+                    goToLocation(refineryLocations.get(0));
+                } else {
+                    System.out.println("No refineries, going to HQ");
+                    goToLocation(HQLocation);
+                }
+            } else if (soupMap.size() > 0) {
+                goToLocation(soupMap.get(0));
             } else {
-                System.out.println("No refineries, going to HQ");
-                goToLocation(HQLocation);
+                System.out.println("Keep moving around to get Soup: " + rc.getSoupCarrying());
+                goTo(randomDirection());
             }
-        } else if (soupMap.size() > 0){
-            goToLocation(soupMap.get(0));
-        } else {
-            System.out.println("Keep moving around to get Soup: " + rc.getSoupCarrying());
-            goTo(randomDirection());
-        }
 
-        if (!checkNearby(RobotType.DESIGN_SCHOOL) && turn > 50) {
-            if (tryBuild(RobotType.DESIGN_SCHOOL, randomDirection()))
-                System.out.println("A design school was built!");
+            if (!checkNearby(RobotType.DESIGN_SCHOOL) && turn > 50) {
+                if (tryBuild(RobotType.DESIGN_SCHOOL, randomDirection()))
+                    System.out.println("A design school was built!");
+            }
+            if (!checkNearby(RobotType.FULFILLMENT_CENTER)) {
+                if (tryBuild(RobotType.FULFILLMENT_CENTER, randomDirection()))
+                    System.out.println("A fulfillment center has been built");
+            }
         }
-        if(!checkNearby(RobotType.FULFILLMENT_CENTER)){
-            if(tryBuild(RobotType.FULFILLMENT_CENTER, randomDirection()))
-            System.out.println("A fulfillment center has been built");
+        if (goTo(randomDirection())) {
+            System.out.println("I moved!");
         }
     }
 

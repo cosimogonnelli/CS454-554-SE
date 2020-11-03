@@ -23,6 +23,7 @@ public class Robot {
 
     public Robot(RobotController r) {
         this.rc = r;
+        radio = new Radio(rc);
     }
 
     public void takeTurn() throws GameActionException {
