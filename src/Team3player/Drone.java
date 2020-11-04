@@ -7,6 +7,10 @@ public class Drone extends Unit {
         super(r);
     }
 
+    /******************* DRONE STRATEGY *********************
+     * Move randomly, until enemy found
+     * Pick up enemy to take it out of play
+     *******************************************************/
     public void takeTurn() throws GameActionException {
         super.takeTurn();
         goTo(randomDirection());
