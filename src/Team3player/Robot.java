@@ -52,9 +52,11 @@ public class Robot {
      */
     boolean notNearby(RobotType target) {
         RobotInfo[] robots = rc.senseNearbyRobots();
-        for (RobotInfo r : robots) {
-            if (r.getType() == target) {
-                return false;
+        if (robots != null) {
+            for (RobotInfo r : robots) {
+                if (r.getType() == target) {
+                    return false;
+                }
             }
         }
         return true;

@@ -40,6 +40,7 @@ public class Miner extends Unit {
         // Add any new refinery locations discovered nearby to refineryMap
         // Share refinery location to blockchain
         RobotInfo[] robots = rc.senseNearbyRobots();
+      if (robots != null) {
         for (RobotInfo robot : robots) {
             if (robot.type == RobotType.REFINERY && robot.team == rc.getTeam()) {
                 // Don't add duplicates to refineryMap
@@ -49,6 +50,7 @@ public class Miner extends Unit {
                 radio.shareLocation(robot.location, 2);
             }
         }
+      }
 
         if(notNearby(RobotType.HQ)) {
             if (notNearby(RobotType.DESIGN_SCHOOL) && (designSchoolCount < 2)) {
