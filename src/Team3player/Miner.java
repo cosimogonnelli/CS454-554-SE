@@ -44,9 +44,11 @@ public class Miner extends Unit {
 
         // Add any new refinery locations discovered
         RobotInfo[] robots = rc.senseNearbyRobots();
-        for (RobotInfo robot : robots) {
-            if (robot.type == RobotType.REFINERY && robot.team == rc.getTeam())
-                refineryMap.add(robot.location);
+        if (robots != null) {
+            for (RobotInfo robot : robots) {
+                if (robot.type == RobotType.REFINERY && robot.team == rc.getTeam())
+                    refineryMap.add(robot.location);
+            }
         }
 
         // Loop in all directions and try to refine in that direction

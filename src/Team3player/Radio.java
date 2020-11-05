@@ -32,14 +32,17 @@ public class Radio {
     }
 
     public void updateMap(ArrayList<MapLocation> map, int resource) throws GameActionException {
-        for(Transaction tx : rc.getBlock(rc.getRoundNum() - 1)) {
-            int[] transmission = tx.getMessage();
-            if(transmission[0] == signet && transmission[1] == resource){
-                MapLocation resourceLoc = new MapLocation(transmission[2], transmission[3]);
-                // Don't add duplicates
-                if (!map.contains(resourceLoc)) {
-                    System.out.println("Added new " + resourceType[resource] + " location to nav");
-                    map.add(resourceLoc);
+        Transaction[] retVal = rc.getBlock(rc.getRoundNum() - 1);
+        if (retVal != null) {
+            for (Transaction tx : retVal) {
+                int[] transmission = tx.getMessage();
+                if (transmission[0] == signet && transmission[1] == resource) {
+                    MapLocation resourceLoc = new MapLocation(transmission[2], transmission[3]);
+                    // Don't add duplicates
+                    if (!map.contains(resourceLoc)) {
+                        System.out.println("Added new " + resourceType[resource] + " location to nav");
+                        map.add(resourceLoc);
+                    }
                 }
             }
         }

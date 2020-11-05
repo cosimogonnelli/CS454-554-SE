@@ -47,9 +47,11 @@ public class Robot {
     // Check any nearby robots or buildings
     boolean checkNearby(RobotType target) throws GameActionException {
         RobotInfo[] robots = rc.senseNearbyRobots();
-        for (RobotInfo r : robots) {
-            if (r.getType() == target) {
-                return true;
+        if (robots != null) {
+            for (RobotInfo r : robots) {
+                if (r.getType() == target) {
+                    return true;
+                }
             }
         }
         return false;
