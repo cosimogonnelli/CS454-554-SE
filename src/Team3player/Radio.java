@@ -89,10 +89,13 @@ public class Radio {
      */
     public int updateBuildingCount(int resource) throws GameActionException {
         int count = 0;
-        for(Transaction tx : rc.getBlock(rc.getRoundNum() - 1)) {
-            int[] transmission = tx.getMessage();
-            if(transmission[0] == signet && transmission[1] == resource) {
-                count += 1;
+        Transaction[] retVal = rc.getBlock(rc.getRoundNum() - 1);
+        if (retVal != null) {
+            for (Transaction tx : retVal) {
+                int[] transmission = tx.getMessage();
+                if (transmission[0] == signet && transmission[1] == resource) {
+                    count += 1;
+                }
             }
         }
         return count;
