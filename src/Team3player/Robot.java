@@ -44,17 +44,22 @@ public class Robot {
         } else return false;
     }
 
-    // Check any nearby robots or buildings
-    boolean checkNearby(RobotType target) throws GameActionException {
+    /**
+     * Makes sure no target robots are nearby
+     *
+     * @param target The type of the robot to check for
+     * @return true if no target robots are nearby
+     */
+    boolean notNearby(RobotType target) {
         RobotInfo[] robots = rc.senseNearbyRobots();
         if (robots != null) {
             for (RobotInfo r : robots) {
                 if (r.getType() == target) {
-                    return true;
+                    return false;
                 }
             }
         }
-        return false;
+        return true;
     }
 
     /**

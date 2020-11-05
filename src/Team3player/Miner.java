@@ -1,23 +1,28 @@
 package Team3player;
 import battlecode.common.*;
-import java.util.ArrayList;
+import java.util.*;
 
 public class Miner extends Unit {
 
     ArrayList<MapLocation> soupMap = new ArrayList<>();
     ArrayList<MapLocation> refineryMap = new ArrayList<>();
+    int designSchoolCount = 0;
+    int fulfillmentCenterCount = 0;
 
     public Miner(RobotController r) {
         super(r);
     }
 
     /******************* MINER STRATEGY *********************
-     * 1 - Build refinery if possible
-     * 2 - Look around and try to refine
-     * 3 - If we can't refine we try to mine
-     * 4 - When full of soup we go to a refinery
-     * 5 - Try to build a design school
-     * 6 - Try to build a fulfillment center
+     * Update maps and counts / Communicate with blockchain
+     * Try to build a design school if we have less than 2
+     * Try to build a fulfillment center if we have less than 2
+     * Try to build refinery if it's a good time/place to
+     * Look around and try to refine
+     * Look around and try to mine
+     * When full of soup we go to nearest refinery
+     * Otherwise, go to a known soup location
+     * If no known soup locations, move randomly
      *******************************************************/
     public void takeTurn() throws GameActionException {
         super.takeTurn();
@@ -26,28 +31,61 @@ public class Miner extends Unit {
         radio.updateMap(soupMap, 1);
         // Check the blockchain for refinery locations
         radio.updateMap(refineryMap, 2);
+        // Check the blockchain updated number of fulfillment centers and design schools
+        designSchoolCount += radio.updateBuildingCount(3);
+        fulfillmentCenterCount += radio.updateBuildingCount(4);
         // Check if nearby soup is depleted
         updateSoupMap();
 
-        // Builds refinery and creates location pointer to it
-        // distance from HQ > some good amount
-        // is next to soup
-        if (turn > 450) {
-            Direction dir = randomDirection();
-            if (tryBuild(RobotType.REFINERY, dir)) {
-                MapLocation refineryLoc = rc.getLocation().add(dir);
-                System.out.println("A refinery was built!");
-                refineryMap.add(refineryLoc);
-                radio.shareLocation(refineryLoc, 2);
+        // Add any new refinery locations discovered nearby to refineryMap
+        // Share refinery location to blockchain
+        RobotInfo[] robots = rc.senseNearbyRobots();
+      if (robots != null) {
+        for (RobotInfo robot : robots) {
+            if (robot.type == RobotType.REFINERY && robot.team == rc.getTeam()) {
+                // Don't add duplicates to refineryMap
+                if (!refineryMap.contains(robot.location)) {
+                    refineryMap.add(robot.location);
+                }
+                radio.shareLocation(robot.location, 2);
+            }
+        }
+      }
+
+        if(notNearby(RobotType.HQ)) {
+            if (notNearby(RobotType.DESIGN_SCHOOL) && (designSchoolCount < 2)) {
+                if (tryBuild(RobotType.DESIGN_SCHOOL, randomDirection())) {
+                    System.out.println("A design school was built!");
+                    radio.shareBuilding(3);
+                    designSchoolCount += 1;
+                }
+            } else if (notNearby(RobotType.FULFILLMENT_CENTER) && (fulfillmentCenterCount < 2)) {
+                if (tryBuild(RobotType.FULFILLMENT_CENTER, randomDirection())) {
+                    System.out.println("A fulfillment center has been built");
+                    radio.shareBuilding(4);
+                    fulfillmentCenterCount += 1;
+                }
             }
         }
 
-        // Add any new refinery locations discovered
-        RobotInfo[] robots = rc.senseNearbyRobots();
-        if (robots != null) {
-            for (RobotInfo robot : robots) {
-                if (robot.type == RobotType.REFINERY && robot.team == rc.getTeam())
-                    refineryMap.add(robot.location);
+        // If there is soup nearby, determine if we should build refinery
+        // If distance from other refineries and HQ > some good amount, try build refinery
+        // Add it to map, share loc on blockchain
+        if ((rc.senseNearbySoup() != null) && notNearby(RobotType.HQ)) {
+            boolean build = false;
+            if(refineryMap.size() == 0) {
+                build = true;
+            } else if (refineryMap.size() < 3) {
+                build = !(findNearest().isWithinDistanceSquared(rc.getLocation(), 150));
+            }
+            if(build) {
+                Direction dir = randomDirection();
+                if (tryBuild(RobotType.REFINERY, dir)) {
+                    MapLocation refineryLoc = rc.getLocation().add(dir);
+                    System.out.println("A refinery was built!");
+                    refineryMap.add(refineryLoc);
+                    radio.shareLocation(refineryLoc, 2);
+                }
             }
         }
 
@@ -78,7 +116,8 @@ public class Miner extends Unit {
             System.out.println("I'm full of soup.");
             if (refineryMap.size() > 0) {
                 System.out.println("Going to the nearest refinery");
-                goToLocation(refineryMap.get(0));
+                MapLocation nearest = findNearest();
+                goToLocation(nearest);
             } else {
                 System.out.println("No refineries, going to HQ");
                 goToLocation(HQLocation.get(0));
@@ -89,18 +128,6 @@ public class Miner extends Unit {
             System.out.println("Keep moving around to get Soup: " + rc.getSoupCarrying());
             goTo(randomDirection());
         }
-
-        if (!checkNearby(RobotType.DESIGN_SCHOOL) && turn > 30) {
-            if (tryBuild(RobotType.DESIGN_SCHOOL, randomDirection()))
-                System.out.println("A design school was built!");
-        }
-        if (!checkNearby(RobotType.FULFILLMENT_CENTER)) {
-            if (tryBuild(RobotType.FULFILLMENT_CENTER, randomDirection()))
-                System.out.println("A fulfillment center has been built");
-        }
-//        if (goTo(randomDirection())) {
-//            System.out.println("I moved!");
-//        }
     }
 
     /**
@@ -131,6 +158,11 @@ public class Miner extends Unit {
         } else return false;
     }
 
+    /**
+     * Removes depleted soup locations from this miner's soupMap.
+     *
+     * @throws GameActionException
+     */
     void updateSoupMap() throws GameActionException {
         int numSoupLocations = soupMap.size();
         for(int i = 0; i < numSoupLocations; i++) {
@@ -139,5 +171,24 @@ public class Miner extends Unit {
                 soupMap.remove(i);
             }
         }
+    }
+
+    /**
+     * Finds nearest refinery to miner's current location.
+     *
+     * @return nearest refinery location
+     */
+    MapLocation findNearest() {
+        MapLocation me = rc.getLocation();
+        MapLocation nearest = refineryMap.get(0);
+        int distanceToNearest = me.distanceSquaredTo(nearest);
+        for(int i = 1; i < refineryMap.size(); i++) {
+            MapLocation refI = refineryMap.get(i);
+            int distanceToRefI = me.distanceSquaredTo(refI);
+            if (distanceToRefI < distanceToNearest) {
+                nearest = refI;
+            }
+        }
+        return nearest;
     }
 }

@@ -16,9 +16,18 @@ public class Radio {
     static final String[] resourceType = {
             "HQ",
             "soup",
-            "refinery"
+            "refinery",
+            "design school",
+            "fulfillment center"
     };
 
+    /**
+     * Submits transaction to blockchain that shares location of resource.
+     *
+     * @param loc x, y coords of resource
+     * @param resource number correlates to resourceType
+     * @throws GameActionException
+     */
     public void shareLocation(MapLocation loc, int resource) throws GameActionException {
         int[] transmission = new int[7];
         transmission[0] = signet;
@@ -31,6 +40,29 @@ public class Radio {
         }
     }
 
+    /**
+     * Submits transaction to blockchain that shares that a building has been created.
+     *
+     * @param resource number correlates to resourceType
+     * @throws GameActionException
+     */
+    public void shareBuilding(int resource) throws GameActionException {
+        int[] transmission = new int[7];
+        transmission[0] = signet;
+        transmission[1] = resource;
+        if (rc.canSubmitTransaction(transmission, 8)) {
+            rc.submitTransaction(transmission, 8);
+            System.out.println("Shared " + resourceType[resource] + " creation.");
+        }
+    }
+
+    /**
+     * Updates miner's map with locations of resource
+     *
+     * @param map miner's map of resource
+     * @param resource number correlates to resourceType
+     * @throws GameActionException
+     */
     public void updateMap(ArrayList<MapLocation> map, int resource) throws GameActionException {
         Transaction[] retVal = rc.getBlock(rc.getRoundNum() - 1);
         if (retVal != null) {
@@ -46,5 +78,23 @@ public class Radio {
                 }
             }
         }
+    }
+
+    /**
+     * Updates miner's count of resource
+     * i.e Number of design schools
+     *
+     * @param resource number correlates to resourceType
+     * @throws GameActionException
+     */
+    public int updateBuildingCount(int resource) throws GameActionException {
+        int count = 0;
+        for(Transaction tx : rc.getBlock(rc.getRoundNum() - 1)) {
+            int[] transmission = tx.getMessage();
+            if(transmission[0] == signet && transmission[1] == resource) {
+                count += 1;
+            }
+        }
+        return count;
     }
 }
