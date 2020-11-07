@@ -1,5 +1,6 @@
 package Team3player;
 import battlecode.common.*;
+import java.util.ArrayList;
 
 public class Unit extends Robot {
 
@@ -82,5 +83,25 @@ public class Unit extends Robot {
      */
     boolean goToLocation(MapLocation target) throws GameActionException {
         return goTo(rc.getLocation().directionTo(target));
+    }
+
+    /**
+     * Finds nearest resource on map to miner's current location.
+     *
+     * @param map of resources (soupMap, refineryMap, placesToDig, etc)
+     * @return nearest resource location
+     */
+    MapLocation findNearest(ArrayList<MapLocation> map) {
+        MapLocation me = rc.getLocation();
+        MapLocation nearest = map.get(0);
+        int distanceToNearest = me.distanceSquaredTo(nearest);
+        for (int i = 1; i < map.size(); i++) {
+            MapLocation I = map.get(i);
+            int distanceToI = me.distanceSquaredTo(I);
+            if (distanceToI < distanceToNearest) {
+                nearest = I;
+            }
+        }
+        return nearest;
     }
 }
