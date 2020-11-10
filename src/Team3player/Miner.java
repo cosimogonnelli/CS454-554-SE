@@ -10,6 +10,7 @@ public class Miner extends Unit {
     ArrayList<MapLocation> refineryMap = new ArrayList<>();
     int designSchoolCount = 0;
     int fulfillmentCenterCount = 0;
+    int netGunCount = 0;
 
     public Miner(RobotController r) {
         super(r);
@@ -33,9 +34,10 @@ public class Miner extends Unit {
         radio.updateMap(soupMap, 1);
         // Check the blockchain for refinery locations
         radio.updateMap(refineryMap, 2);
-        // Check the blockchain updated number of fulfillment centers and design schools
+        // Check the blockchain updated number of netGun, fulfillment centers and design schools
         designSchoolCount += radio.updateBuildingCount(3);
         fulfillmentCenterCount += radio.updateBuildingCount(4);
+        netGunCount += radio.updateBuildingCount(5);
         // Check if nearby soup is depleted
         updateSoupMap();
 
@@ -103,11 +105,17 @@ public class Miner extends Unit {
                     radio.shareBuilding(3);
                     designSchoolCount += 1;
                 }
-            } else if (notNearby(RobotType.FULFILLMENT_CENTER) && (fulfillmentCenterCount < 1)) {
+            } if (notNearby(RobotType.FULFILLMENT_CENTER) && (fulfillmentCenterCount < 1)) {
                 if (tryBuild(RobotType.FULFILLMENT_CENTER, randomDirection())) {
                     System.out.println("A fulfillment center has been built");
                     radio.shareBuilding(4);
                     fulfillmentCenterCount += 1;
+                }
+            } else if (netGunCount < 5) {
+                if(tryBuild(RobotType.NET_GUN, randomDirection())) {
+                    System.out.println("A netGun has been built");
+                    radio.shareBuilding(5);
+                    netGunCount += 1;
                 }
             }
         }
