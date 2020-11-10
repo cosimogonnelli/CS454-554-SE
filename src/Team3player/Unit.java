@@ -87,11 +87,13 @@ public class Unit extends Robot {
 
     /**
      * Finds nearest resource on map to miner's current location.
+     * Catches locations that are flooded and removes them from the map
      *
      * @param map of resources (soupMap, refineryMap, placesToDig, etc)
      * @return nearest resource location
+     * @throws GameActionException
      */
-    MapLocation findNearest(ArrayList<MapLocation> map) {
+    MapLocation findNearest(ArrayList<MapLocation> map) throws GameActionException {
         MapLocation me = rc.getLocation();
         MapLocation nearest = map.get(0);
         int distanceToNearest = me.distanceSquaredTo(nearest);
@@ -101,6 +103,10 @@ public class Unit extends Robot {
             if (distanceToI < distanceToNearest) {
                 nearest = I;
             }
+        }
+        if (rc.canSenseLocation(nearest) && rc.senseFlooding(nearest)) {
+            map.remove(nearest);
+            findNearest(map);
         }
         return nearest;
     }
