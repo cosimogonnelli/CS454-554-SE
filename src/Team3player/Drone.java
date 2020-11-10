@@ -13,7 +13,11 @@ public class Drone extends Unit {
      *******************************************************/
     public void takeTurn() throws GameActionException {
         super.takeTurn();
-        goTo(randomDirection());
+        if(HQLocation.size() > 0)
+            goToLocation(HQLocation.get(0));
+        else {
+            goTo(randomDirection());
+        }
         Team enemy = rc.getTeam().opponent();
         if (!rc.isCurrentlyHoldingUnit()) {
             // See if there are any enemy robots within capturing range
@@ -28,7 +32,14 @@ public class Drone extends Unit {
             }
         } else {
             // No close robots, so search for robots within sight radius
-            //tryMove(randomDirection());
+            for(Direction dir: directions){
+                //if(rc.senseFlooding(rc.adjacentLocation(dir))){
+                    if(rc.canDropUnit(dir)) {
+                        rc.dropUnit(dir);
+                        System.out.println("I killed a unit!");
+                    }
+                //}
+            }
             //if(rc.canDropUnit(randomDirection()))
             //    rc.dropUnit(randomDirection());
         }
