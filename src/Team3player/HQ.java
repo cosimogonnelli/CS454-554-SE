@@ -1,7 +1,7 @@
 package Team3player;
 import battlecode.common.*;
 
-public class HQ extends Shooter {
+public class HQ extends Robot {
 
     int minerCount = 0;
 
