@@ -10,6 +10,7 @@ public class Miner extends Unit {
     ArrayList<MapLocation> refineryMap = new ArrayList<>();
     int designSchoolCount = 0;
     int fulfillmentCenterCount = 0;
+    int vaporatorCount = 0;
 
     public Miner(RobotController r) {
         super(r);
@@ -36,6 +37,7 @@ public class Miner extends Unit {
         // Check the blockchain updated number of fulfillment centers and design schools
         designSchoolCount += radio.updateBuildingCount(3);
         fulfillmentCenterCount += radio.updateBuildingCount(4);
+        vaporatorCount += radio.updateBuildingCount(5);
         // Check if nearby soup is depleted
         updateSoupMap();
 
@@ -65,7 +67,8 @@ public class Miner extends Unit {
                 boolean build = false;
                 if (refineryMap.size() == 0) {
                     build = true;
-                } else if (refineryMap.size() < 2 && designSchoolCount > 0 && fulfillmentCenterCount > 0) {
+                } else if (refineryMap.size() < 2 && designSchoolCount > 0
+                        && fulfillmentCenterCount > 0 && vaporatorCount > 0) {
                     build = !(findNearest(refineryMap).isWithinDistanceSquared(rc.getLocation(), 150));
                 }
                 if (build) {
@@ -93,11 +96,17 @@ public class Miner extends Unit {
                     radio.shareBuilding(3);
                     designSchoolCount += 1;
                 }
-            } else if (fulfillmentCenterCount < 1) {
+            } else if (fulfillmentCenterCount < 1 && rc.getTeamSoup() > 200) {
                 if (tryBuild(RobotType.FULFILLMENT_CENTER, randomDirection())) {
                     System.out.println("A fulfillment center has been built");
                     radio.shareBuilding(4);
                     fulfillmentCenterCount += 1;
+                }
+            } else if (vaporatorCount < 1 && !notNearby(RobotType.REFINERY) && rc.getTeamSoup() > 600) {
+                if (tryBuild(RobotType.VAPORATOR, randomDirection())) {
+                    System.out.println("A vaporator has been built");
+                    radio.shareBuilding(5);
+                    vaporatorCount += 1;
                 }
             }
         }

@@ -18,7 +18,8 @@ public class Radio {
             "soup",
             "refinery",
             "design school",
-            "fulfillment center"
+            "fulfillment center",
+            "vaporator"
     };
 
     /**
