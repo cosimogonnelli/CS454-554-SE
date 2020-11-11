@@ -90,19 +90,20 @@ public class Miner extends Unit {
         }
 
         if (notNearby(RobotType.HQ) && refineryMap.size() > 0) {
-            if (designSchoolCount < 1) {
+            if (designSchoolCount < 1 && rc.getTeamSoup() > 200) {
                 if (tryBuild(RobotType.DESIGN_SCHOOL, randomDirection())) {
                     System.out.println("A design school was built!");
                     radio.shareBuilding(3);
                     designSchoolCount += 1;
                 }
-            } else if (fulfillmentCenterCount < 1 && rc.getTeamSoup() > 200) {
+            } else if (fulfillmentCenterCount < 1 && rc.getTeamSoup() > 300) {
                 if (tryBuild(RobotType.FULFILLMENT_CENTER, randomDirection())) {
                     System.out.println("A fulfillment center has been built");
                     radio.shareBuilding(4);
                     fulfillmentCenterCount += 1;
                 }
-            } else if (vaporatorCount < 1 && !notNearby(RobotType.REFINERY) && rc.getTeamSoup() > 600) {
+            } else if (vaporatorCount < refineryMap.size() && !notNearby(RobotType.REFINERY)
+                    && rc.getTeamSoup() > 600) {
                 if (tryBuild(RobotType.VAPORATOR, randomDirection())) {
                     System.out.println("A vaporator has been built");
                     radio.shareBuilding(5);
