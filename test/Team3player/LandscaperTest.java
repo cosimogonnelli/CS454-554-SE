@@ -22,7 +22,7 @@ public class LandscaperTest extends TestCase {
         when(r.canDigDirt(any())).thenReturn(true);
 
         Landscaper landscaper = new Landscaper(r);
-        boolean retVal = landscaper.tryToDig();
+        boolean retVal = landscaper.tryToDig(Robot.randomDirection());
         assert(retVal);
     }
 }

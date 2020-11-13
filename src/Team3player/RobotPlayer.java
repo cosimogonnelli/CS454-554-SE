@@ -40,9 +40,10 @@ public strictfp class RobotPlayer {
             case NET_GUN:
                 gundam = new Shooter(rc);
                 break;
-            //case VAPORATOR:
-            // gundam = new Vaporator(rc);
-            // break;
+            case VAPORATOR:
+                gundam = new Vaporator(rc);
+                break;
+
         }
 
         while (true) {
