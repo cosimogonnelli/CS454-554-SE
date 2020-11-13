@@ -104,7 +104,8 @@ public class Miner extends Unit {
                     radio.shareBuilding(4);
                     fulfillmentCenterCount += 1;
                 }
-            } else if (notNearby(RobotType.NET_GUN) && (netGunCount < 5)) {
+            } else if (notNearby(RobotType.NET_GUN) && !notNearby(RobotType.DELIVERY_DRONE)
+                    && (netGunCount < 5)) {
                 if (tryBuild(RobotType.NET_GUN, randomDirection())) {
                     System.out.println("A net Gun has been built");
                     radio.shareBuilding(5);
