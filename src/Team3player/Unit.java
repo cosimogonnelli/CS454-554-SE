@@ -22,10 +22,18 @@ public class Unit extends Robot {
      */
     boolean tryMove(Direction dir) throws GameActionException {
         // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
-        if (rc.isReady() && rc.canMove(dir) && !rc.senseFlooding(rc.getLocation().add(dir))) {
-            rc.move(dir);
-            return true;
-        } else return false;
+        if(rc.getType() != RobotType.DELIVERY_DRONE) {
+            if (rc.isReady() && rc.canMove(dir) && !rc.senseFlooding(rc.getLocation().add(dir))) {
+                rc.move(dir);
+                return true;
+            } else return false;
+        }
+        else {
+            if (rc.isReady() && rc.canMove(dir) ) {
+                rc.move(dir);
+                return true;
+            } else return false;
+        }
     }
 
     /**
