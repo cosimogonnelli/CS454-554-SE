@@ -10,6 +10,7 @@ public class Miner extends Unit {
     ArrayList<MapLocation> refineryMap = new ArrayList<>();
     int designSchoolCount = 0;
     int fulfillmentCenterCount = 0;
+    int netGunCount = 0;
     int vaporatorCount = 0;
 
     public Miner(RobotController r) {
@@ -34,10 +35,11 @@ public class Miner extends Unit {
         radio.updateMap(soupMap, 1);
         // Check the blockchain for refinery locations
         radio.updateMap(refineryMap, 2);
-        // Check the blockchain updated number of fulfillment centers and design schools
+        // Check the blockchain updated number of netGun, fulfillment centers and design schools
         designSchoolCount += radio.updateBuildingCount(3);
         fulfillmentCenterCount += radio.updateBuildingCount(4);
-        vaporatorCount += radio.updateBuildingCount(5);
+        netGunCount += radio.updateBuildingCount(5);
+        vaporatorCount += radio.updateBuildingCount(6);
         // Check if nearby soup is depleted
         updateSoupMap();
 
@@ -58,8 +60,8 @@ public class Miner extends Unit {
 
         // Locate nearby soup
         // Unfortunately, trying to add this to the soupMap overwhelms the miner.
-        MapLocation [] nearbySoup = rc.senseNearbySoup();
-        if(nearbySoup != null) {
+        MapLocation[] nearbySoup = rc.senseNearbySoup();
+        if (nearbySoup != null) {
             // If there is soup nearby, determine if we should build refinery
             // If distance from other refineries and HQ > some good amount, try build refinery
             // Add it to map, share loc on blockchain
@@ -102,15 +104,23 @@ public class Miner extends Unit {
                     radio.shareBuilding(4);
                     fulfillmentCenterCount += 1;
                 }
+            } else if (notNearby(RobotType.NET_GUN) && !notNearby(RobotType.DELIVERY_DRONE)
+                    && (netGunCount < 5)) {
+                if (tryBuild(RobotType.NET_GUN, randomDirection())) {
+                    System.out.println("A net Gun has been built");
+                    radio.shareBuilding(5);
+                    netGunCount += 1;
+                }
             } else if (vaporatorCount < refineryMap.size() && !notNearby(RobotType.REFINERY)
                     && rc.getTeamSoup() > 600) {
                 if (tryBuild(RobotType.VAPORATOR, randomDirection())) {
                     System.out.println("A vaporator has been built");
-                    radio.shareBuilding(5);
+                    radio.shareBuilding(6);
                     vaporatorCount += 1;
                 }
             }
         }
+
 
         // If we can't refine we than try to Mine.
         // Check again all direction and try to mine
@@ -156,7 +166,7 @@ public class Miner extends Unit {
      * @return true if a move was performed
      * @throws GameActionException
      */
-    boolean tryMine(Direction dir) throws GameActionException {
+    boolean tryMine (Direction dir) throws GameActionException {
         if (rc.isReady() && rc.canMineSoup(dir)) {
             rc.mineSoup(dir);
             return true;
@@ -170,7 +180,7 @@ public class Miner extends Unit {
      * @return true if a move was performed
      * @throws GameActionException
      */
-    boolean tryRefine(Direction dir) throws GameActionException {
+    boolean tryRefine (Direction dir) throws GameActionException {
         if (rc.isReady() && rc.canDepositSoup(dir)) {
             rc.depositSoup(dir, rc.getSoupCarrying());
             return true;
@@ -182,7 +192,7 @@ public class Miner extends Unit {
      *
      * @throws GameActionException
      */
-    void updateSoupMap() throws GameActionException {
+    void updateSoupMap () throws GameActionException {
         int numSoupLocations = soupMap.size();
         for (int i = 0; i < numSoupLocations; i++) {
             MapLocation soup = soupMap.get(i);
