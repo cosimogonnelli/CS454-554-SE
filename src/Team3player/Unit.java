@@ -1,5 +1,6 @@
 package Team3player;
 import battlecode.common.*;
+import java.util.ArrayList;
 
 public class Unit extends Robot {
 
@@ -21,10 +22,18 @@ public class Unit extends Robot {
      */
     boolean tryMove(Direction dir) throws GameActionException {
         // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
-        if (rc.isReady() && rc.canMove(dir) && !rc.senseFlooding(rc.getLocation().add(dir))) {
-            rc.move(dir);
-            return true;
-        } else return false;
+        if(rc.getType() != RobotType.DELIVERY_DRONE) {
+            if (rc.isReady() && rc.canMove(dir) && !rc.senseFlooding(rc.getLocation().add(dir))) {
+                rc.move(dir);
+                return true;
+            } else return false;
+        }
+        else {
+            if (rc.isReady() && rc.canMove(dir) ) {
+                rc.move(dir);
+                return true;
+            } else return false;
+        }
     }
 
     /**
@@ -82,5 +91,31 @@ public class Unit extends Robot {
      */
     boolean goToLocation(MapLocation target) throws GameActionException {
         return goTo(rc.getLocation().directionTo(target));
+    }
+
+    /**
+     * Finds nearest resource on map to miner's current location.
+     * Catches locations that are flooded and removes them from the map
+     *
+     * @param map of resources (soupMap, refineryMap, placesToDig, etc)
+     * @return nearest resource location
+     * @throws GameActionException
+     */
+    MapLocation findNearest(ArrayList<MapLocation> map) throws GameActionException {
+        MapLocation me = rc.getLocation();
+        MapLocation nearest = map.get(0);
+        int distanceToNearest = me.distanceSquaredTo(nearest);
+        for (int i = 1; i < map.size(); i++) {
+            MapLocation I = map.get(i);
+            int distanceToI = me.distanceSquaredTo(I);
+            if (distanceToI < distanceToNearest) {
+                nearest = I;
+            }
+        }
+        if (rc.canSenseLocation(nearest) && rc.senseFlooding(nearest)) {
+            map.remove(nearest);
+            findNearest(map);
+        }
+        return nearest;
     }
 }

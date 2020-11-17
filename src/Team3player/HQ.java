@@ -13,7 +13,7 @@ public class HQ extends Robot {
         super.takeTurn();
 
         //Build Miners for 250 to begin, after that prioritize refineries unless there are fewer than 5 miners
-        if(minerCount < 8) {
+        if(minerCount < 6) {
             for (Direction dir : directions)
                 if (tryBuild(RobotType.MINER, randomDirection()))
                     ++minerCount;
