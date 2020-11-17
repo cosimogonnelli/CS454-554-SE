@@ -13,11 +13,13 @@ public class Shooter extends Robot{
         Team enemy = rc.getTeam().opponent();
         RobotInfo[] inRange = rc.senseNearbyRobots(GameConstants.NET_GUN_SHOOT_RADIUS_SQUARED, enemy);
 
-        for (RobotInfo e : inRange) {
-            if(e.type == RobotType.DELIVERY_DRONE) {
-                if(rc.canShootUnit(e.ID)){
-                    rc.shootUnit(e.ID);
-                    break;
+        if(inRange != null) {
+            for (RobotInfo e : inRange) {
+                if (e.type == RobotType.DELIVERY_DRONE) {
+                    if (rc.canShootUnit(e.ID)) {
+                        rc.shootUnit(e.ID);
+                        break;
+                    }
                 }
             }
         }
