@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 public class Unit extends Robot {
 
+    ArrayList<MapLocation> waterMap = new ArrayList<>();
+
     public Unit(RobotController r) {
         super(r);
     }
@@ -12,8 +14,6 @@ public class Unit extends Robot {
         super.takeTurn();
         findHQ();
     }
-
-    ArrayList<MapLocation> waterMap = new ArrayList<>();
 
     /**
      * Attempts to move in a given direction.
