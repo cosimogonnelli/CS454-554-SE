@@ -25,7 +25,14 @@ public class Unit extends Robot {
     boolean tryMove(Direction dir) throws GameActionException {
         // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
         if(rc.getType() != RobotType.DELIVERY_DRONE) {
-            if (rc.isReady() && rc.canMove(dir) && !rc.senseFlooding(rc.getLocation().add(dir))) {
+            if (rc.senseFlooding(rc.getLocation().add(dir))) {
+                //share the location of the water on the blockchain and add to water map
+                MapLocation waterLoc = rc.getLocation().add(dir);
+                radio.shareLocation(waterLoc, 7);
+                waterMap.add(waterLoc);
+                return false;
+            }
+            else if (rc.isReady() && rc.canMove(dir)) {
                 rc.move(dir);
                 return true;
             } else return false;
