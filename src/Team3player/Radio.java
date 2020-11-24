@@ -14,14 +14,17 @@ public class Radio {
     }
 
     static final String[] resourceType = {
-            "HQ",
-            "soup",
-            "refinery",
-            "design school",
-            "fulfillment center",
-            "net gun",
-            "vaporator",
-            "enemyHQ"
+            "HQ (0)",
+            "soup (1)",
+            "refinery (2)",
+            "design school (3)",
+            "fulfillment center (4)",
+            "net gun (5)",
+            "vaporator (6)",
+            "enemyHQ (7)",
+            "drone (8)",
+            "landscaper (9)",
+            "water (10)"
     };
 
     /**
@@ -33,11 +36,8 @@ public class Radio {
      */
     public void shareLocation(MapLocation loc, int resource) throws GameActionException {
         int fee = 3;
-        if (resource == 0){
+        if (resource == 0 || resource == 6){
             fee = 5;
-        }
-        if (resource == 6){
-            fee = 6;
         }
         int[] transmission = new int[7];
         transmission[0] = signet;
@@ -63,6 +63,26 @@ public class Radio {
         if (rc.canSubmitTransaction(transmission, 4)) {
             rc.submitTransaction(transmission, 4);
             System.out.println("Shared " + resourceType[resource] + " creation.");
+        }
+    }
+
+    /**
+     * Submits transaction to blockchain that shares that a unit has been created.
+     * Adds unit IDs to block chain
+     *
+     * @param unitType number correlates to resourceType (drone, landscaper)
+     * @throws GameActionException
+     */
+    public void shareUnitCreation(ArrayList<Integer> unitIDs, int unitType) throws GameActionException {
+        int[] transmission = new int[7];
+        transmission[0] = signet;
+        transmission[1] = unitType;
+        for (int i = 0; i < unitIDs.size() && i+2 < 7; i++) {
+            transmission[i+2] = unitIDs.get(i);
+        }
+        if (rc.canSubmitTransaction(transmission, 4)) {
+            rc.submitTransaction(transmission, 4);
+            System.out.println("Shared " + unitIDs.size() + " " + resourceType[unitType] + " creation.");
         }
     }
 
@@ -116,5 +136,33 @@ public class Radio {
             }
         }
         return count;
+    }
+
+    /**
+     * Updates unit ID list
+     * i.e IDs of drones, landscapers
+     *
+     * @param unitType number correlates to resourceType
+     * @throws GameActionException
+     */
+    public void updateUnitIDs(ArrayList<Integer> drones, int unitType) throws GameActionException{
+        Transaction[] retVal = rc.getBlock(rc.getRoundNum() - 1);
+        if (retVal != null) {
+            for (Transaction tx : retVal) {
+                int[] transmission = tx.getMessage();
+                if (transmission[0] == signet && transmission[1] == unitType) {
+                    for (int i = 2; i < 7; i++) {
+                        if (transmission[i] != 0){
+                            int unitID = transmission[i];
+                            // Don't add duplicates
+                            if (!drones.contains(unitID)) {
+                                System.out.println("Added new " + resourceType[unitType] + " location to list");
+                                drones.add(unitID);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

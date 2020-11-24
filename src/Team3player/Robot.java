@@ -7,6 +7,7 @@ public class Robot {
     RobotController rc;
     Radio radio;
     ArrayList<MapLocation> HQLocation = new ArrayList<>();
+    ArrayList<Integer> drones = new ArrayList<>();
     int turn = 0;
 
     static Direction[] directions = {
@@ -54,12 +55,32 @@ public class Robot {
         RobotInfo[] robots = rc.senseNearbyRobots();
         if (robots != null) {
             for (RobotInfo r : robots) {
-                if (r.getType() == target) {
+                if (r.type == target) {
                     return false;
                 }
             }
         }
         return true;
+    }
+
+    /**
+     * Makes sure no target robots are nearby
+     *
+     * @param target The type of the robot to check for
+     * @return true if no target robots are nearby
+     */
+    public void getUnitIDs(ArrayList<Integer> idList, RobotType target) {
+        RobotInfo[] robots = rc.senseNearbyRobots();
+        if (robots != null) {
+            for (RobotInfo r : robots) {
+                if (r.type == target) {
+                    // Don't add duplicates
+                    if (!idList.contains(r.ID)) {
+                        idList.add(r.ID);
+                    }
+                }
+            }
+        }
     }
 
     /**
