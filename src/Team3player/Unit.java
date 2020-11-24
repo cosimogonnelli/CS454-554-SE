@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 public class Unit extends Robot {
 
-    ArrayList<MapLocation> waterMap = new ArrayList<>();
-
     public Unit(RobotController r) {
         super(r);
     }
@@ -14,6 +12,8 @@ public class Unit extends Robot {
         super.takeTurn();
         findHQ();
     }
+
+    ArrayList<MapLocation> waterMap = new ArrayList<>();
 
     /**
      * Attempts to move in a given direction.
@@ -25,7 +25,7 @@ public class Unit extends Robot {
     boolean tryMove(Direction dir) throws GameActionException {
         // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
         if(rc.getType() != RobotType.DELIVERY_DRONE) {
-            if (rc.senseFlooding(rc.getLocation().add(dir))) {
+            if (rc.isReady() && rc.senseFlooding(rc.getLocation().add(dir))) {
                 //share the location of the water on the blockchain and add to water map
                 MapLocation waterLoc = rc.getLocation().add(dir);
                 radio.shareLocation(waterLoc, 7);
