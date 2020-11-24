@@ -1,7 +1,12 @@
 package Team3player;
 import battlecode.common.*;
 
+import java.util.ArrayList;
+
 public class Drone extends Unit {
+
+    ArrayList<MapLocation> possibleEnemyHQLocations = new ArrayList<>();
+    boolean checkedAll = false;
 
     public Drone(RobotController r) {
         super(r);
@@ -15,9 +20,40 @@ public class Drone extends Unit {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
         Team enemy = rc.getTeam().opponent();
-        if (HQLocation.size() == 2) {
-            goToLocation(HQLocation.get(1));
+
+        //Compute and check possible locations of enemy HQ and share to blockchain
+        if (HQLocation.size() == 1) {
+            int x = HQLocation.get(0).x;
+            int y = HQLocation.get(0).y;
+            int h = rc.getMapHeight();
+            int w = rc.getMapWidth();
+            if (possibleEnemyHQLocations.size() == 0 && !checkedAll) {
+                // Diagonally
+                possibleEnemyHQLocations.add(new MapLocation(w - x, h - y));
+                // Vertically
+                possibleEnemyHQLocations.add(new MapLocation(x, h - y));
+                // Horizontally
+                possibleEnemyHQLocations.add(new MapLocation(w - x, y));
+            }
+            MapLocation loc = possibleEnemyHQLocations.get(0);
+            if (rc.canSenseLocation(loc)) {
+                if (rc.senseRobotAtLocation(loc).type == RobotType.HQ) {
+                    HQLocation.add(loc);
+                    radio.shareLocation(loc, 7);
+                    possibleEnemyHQLocations.clear();
+                } else {
+                    possibleEnemyHQLocations.remove(loc);
+                }
+            } else {
+                goToLocation(loc);
+            }
+            if (possibleEnemyHQLocations.size() == 0) {
+                checkedAll = true;
+            }
         }
+//        if (HQLocation.size() == 2) {
+//            goToLocation(HQLocation.get(1));
+//        }
         if (!rc.isCurrentlyHoldingUnit()) {
             // See if there are any enemy robots within capturing range
             RobotInfo[] robots = rc.senseNearbyRobots(GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED);

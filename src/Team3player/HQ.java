@@ -27,22 +27,5 @@ public class HQ extends Robot {
                 if (tryBuild(RobotType.MINER, randomDirection()))
                     ++minerCount;
         }
-
-        //Compute and check possible locations of enemy HQ and share to blockchain
-//        if (HQLocation.size() == 1) {
-//            int x = HQLoc.x;
-//            int y = HQLoc.y;
-//            ArrayList<MapLocation> possibleEnemyHQLocations = new ArrayList<>();
-//            possibleEnemyHQLocations.add(new MapLocation(-x,y));
-//            possibleEnemyHQLocations.add(new MapLocation(x,-y));
-//            possibleEnemyHQLocations.add(new MapLocation(-x,-y));
-//            for (MapLocation loc : possibleEnemyHQLocations) {
-//                if (rc.senseRobotAtLocation(loc).type == RobotType.HQ) {
-//                    HQLocation.add(loc);
-//                    radio.shareLocation(loc, 7);
-//                    break;
-//                }
-//            }
-//        }
     }
 }

@@ -59,9 +59,9 @@ public class Unit extends Robot {
         if (HQLocation.size() == 0) {
             radio.updateMap(HQLocation, 0);
         }
-//        if (HQLocation.size() == 1) {
-//            radio.updateMap(HQLocation, 7);
-//        }
+        if (HQLocation.size() == 1) {
+            radio.updateMap(HQLocation, 7);
+        }
     }
 
     /**
