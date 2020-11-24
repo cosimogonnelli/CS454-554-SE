@@ -98,21 +98,21 @@ public class Miner extends Unit {
                     radio.shareBuilding(3);
                     designSchoolCount += 1;
                 }
-            } else if (fulfillmentCenterCount < 1 && rc.getTeamSoup() > 300) {
+            } else if (fulfillmentCenterCount < 1 && rc.getTeamSoup() > 400) {
                 if (tryBuild(RobotType.FULFILLMENT_CENTER, randomDirection())) {
                     System.out.println("A fulfillment center has been built");
                     radio.shareBuilding(4);
                     fulfillmentCenterCount += 1;
                 }
             } else if (notNearby(RobotType.NET_GUN) && !notNearby(RobotType.DELIVERY_DRONE)
-                    && (netGunCount < 5)) {
+                    && (netGunCount < 5) && rc.getTeamSoup() > 300) {
                 if (tryBuild(RobotType.NET_GUN, randomDirection())) {
                     System.out.println("A net Gun has been built");
                     radio.shareBuilding(5);
                     netGunCount += 1;
                 }
             } else if (vaporatorCount < refineryMap.size() && !notNearby(RobotType.REFINERY)
-                    && rc.getTeamSoup() > 600) {
+                    && rc.getTeamSoup() > 800) {
                 if (tryBuild(RobotType.VAPORATOR, randomDirection())) {
                     System.out.println("A vaporator has been built");
                     radio.shareBuilding(6);

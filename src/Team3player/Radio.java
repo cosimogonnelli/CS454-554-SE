@@ -35,9 +35,9 @@ public class Radio {
      * @throws GameActionException
      */
     public void shareLocation(MapLocation loc, int resource) throws GameActionException {
-        int fee = 3;
+        int fee = 2;
         if (resource == 0 || resource == 6){
-            fee = 5;
+            fee = 4;
         }
         int[] transmission = new int[7];
         transmission[0] = signet;
@@ -80,8 +80,8 @@ public class Radio {
         for (int i = 0; i < unitIDs.size() && i+2 < 7; i++) {
             transmission[i+2] = unitIDs.get(i);
         }
-        if (rc.canSubmitTransaction(transmission, 4)) {
-            rc.submitTransaction(transmission, 4);
+        if (rc.canSubmitTransaction(transmission, 1)) {
+            rc.submitTransaction(transmission, 1);
             System.out.println("Shared " + unitIDs.size() + " " + resourceType[unitType] + " creation.");
         }
     }
