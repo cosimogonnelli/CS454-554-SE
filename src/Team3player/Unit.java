@@ -10,7 +10,7 @@ public class Unit extends Robot {
 
     public void takeTurn() throws GameActionException {
         super.takeTurn();
-        findHQ();
+        findHQs();
     }
 
     /**
@@ -43,22 +43,25 @@ public class Unit extends Robot {
      *
      * @throws GameActionException
      */
-    void findHQ() throws GameActionException {
-        if (HQLocation.size() == 0) {
-            RobotInfo[] robots = rc.senseNearbyRobots();
-            if (robots != null) {
-                for (RobotInfo robot : robots) {
-                    if (robot.type == RobotType.HQ && robot.team == rc.getTeam()) {
-                        MapLocation HQLoc = robot.location;
-                        HQLocation.add(HQLoc);
-                        radio.shareLocation(HQLoc, 0);
-                    }
-                }
-            }
-        }
+    void findHQs() throws GameActionException {
+//        if (HQLocation.size() == 0) {
+//            RobotInfo[] robots = rc.senseNearbyRobots();
+//            if (robots != null) {
+//                for (RobotInfo robot : robots) {
+//                    if (robot.type == RobotType.HQ && robot.team == rc.getTeam()) {
+//                        MapLocation HQLoc = robot.location;
+//                        HQLocation.add(HQLoc);
+//                        radio.shareLocation(HQLoc, 0);
+//                    }
+//                }
+//            }
+//        }
         if (HQLocation.size() == 0) {
             radio.updateMap(HQLocation, 0);
         }
+//        if (HQLocation.size() == 1) {
+//            radio.updateMap(HQLocation, 7);
+//        }
     }
 
     /**

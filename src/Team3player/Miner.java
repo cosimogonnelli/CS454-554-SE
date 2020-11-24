@@ -45,18 +45,18 @@ public class Miner extends Unit {
 
         // Add any new refinery locations discovered nearby to refineryMap
         // Share refinery location to blockchain
-        RobotInfo[] robots = rc.senseNearbyRobots();
-        if (robots != null) {
-            for (RobotInfo robot : robots) {
-                if (robot.type == RobotType.REFINERY && robot.team == rc.getTeam()) {
-                    // Don't add duplicates to refineryMap
-                    if (!refineryMap.contains(robot.location)) {
-                        refineryMap.add(robot.location);
-                    }
-                    radio.shareLocation(robot.location, 2);
-                }
-            }
-        }
+//        RobotInfo[] robots = rc.senseNearbyRobots();
+//        if (robots != null) {
+//            for (RobotInfo robot : robots) {
+//                if (robot.type == RobotType.REFINERY && robot.team == rc.getTeam()) {
+//                    // Don't add duplicates to refineryMap
+//                    if (!refineryMap.contains(robot.location)) {
+//                        refineryMap.add(robot.location);
+//                    }
+//                    radio.shareLocation(robot.location, 2);
+//                }
+//            }
+//        }
 
         // Locate nearby soup
         // Unfortunately, trying to add this to the soupMap overwhelms the miner.

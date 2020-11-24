@@ -15,6 +15,9 @@ public class Drone extends Unit {
     public void takeTurn() throws GameActionException {
         super.takeTurn();
         Team enemy = rc.getTeam().opponent();
+        if (HQLocation.size() == 2) {
+            goToLocation(HQLocation.get(1));
+        }
         if (!rc.isCurrentlyHoldingUnit()) {
             // See if there are any enemy robots within capturing range
             RobotInfo[] robots = rc.senseNearbyRobots(GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED);

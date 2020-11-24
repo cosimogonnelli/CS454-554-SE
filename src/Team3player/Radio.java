@@ -19,7 +19,9 @@ public class Radio {
             "refinery",
             "design school",
             "fulfillment center",
-            "vaporator"
+            "net gun",
+            "vaporator",
+            "enemyHQ"
     };
 
     /**
@@ -33,6 +35,9 @@ public class Radio {
         int fee = 3;
         if (resource == 0){
             fee = 5;
+        }
+        if (resource == 6){
+            fee = 6;
         }
         int[] transmission = new int[7];
         transmission[0] = signet;
@@ -69,16 +74,23 @@ public class Radio {
      * @throws GameActionException
      */
     public void updateMap(ArrayList<MapLocation> map, int resource) throws GameActionException {
-        Transaction[] retVal = rc.getBlock(rc.getRoundNum() - 1);
-        if (retVal != null) {
-            for (Transaction tx : retVal) {
-                int[] transmission = tx.getMessage();
-                if (transmission[0] == signet && transmission[1] == resource) {
-                    MapLocation resourceLoc = new MapLocation(transmission[2], transmission[3]);
-                    // Don't add duplicates
-                    if (!map.contains(resourceLoc)) {
-                        System.out.println("Added new " + resourceType[resource] + " location to nav");
-                        map.add(resourceLoc);
+        for (int i = 1; i < rc.getRoundNum(); i++) {
+            // If resource is soup, just check the most recent block
+            // Else check all blocks for resource
+            if (resource == 1 || resource == 2) {
+                i = rc.getRoundNum() - 1;
+            }
+            Transaction[] retVal = rc.getBlock(i);
+            if (retVal != null) {
+                for (Transaction tx : retVal) {
+                    int[] transmission = tx.getMessage();
+                    if (transmission[0] == signet && transmission[1] == resource) {
+                        MapLocation resourceLoc = new MapLocation(transmission[2], transmission[3]);
+                        // Don't add duplicates
+                        if (!map.contains(resourceLoc)) {
+                            System.out.println("Added new " + resourceType[resource] + " location to nav");
+                            map.add(resourceLoc);
+                        }
                     }
                 }
             }
