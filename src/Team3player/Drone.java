@@ -32,6 +32,8 @@ public class Drone extends Unit {
             // Robot being held, so go dump it in water
             for(Direction dir: directions){
                 if(rc.senseFlooding(rc.adjacentLocation(dir))){
+                    //share the location of the water on the blockchain
+                    radio.shareLocation(rc.getLocation().add(dir), 7);
                     if(rc.canDropUnit(dir)) {
                         rc.dropUnit(dir);
                         System.out.println("I Destroyed a unit!");
