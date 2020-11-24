@@ -28,7 +28,7 @@ public class Unit extends Robot {
             if (rc.isReady() && rc.senseFlooding(rc.getLocation().add(dir))) {
                 //share the location of the water on the blockchain and add to water map
                 MapLocation waterLoc = rc.getLocation().add(dir);
-                radio.shareLocation(waterLoc, 7);
+                radio.shareLocation(waterLoc, 10);
                 waterMap.add(waterLoc);
                 return false;
             }
