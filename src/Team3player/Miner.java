@@ -104,12 +104,27 @@ public class Miner extends Unit {
                     radio.shareBuilding(4);
                     fulfillmentCenterCount += 1;
                 }
-            } else if (notNearby(RobotType.NET_GUN) && !notNearby(RobotType.DELIVERY_DRONE)
-                    && (netGunCount < 5)) {
+            } // First try to build near sensitive buildings to protect units around from drones
+            else if (notNearby(RobotType.NET_GUN) &&
+                                (
+                                !notNearby(RobotType.REFINERY) ||
+                                !notNearby(RobotType.DESIGN_SCHOOL) ||
+                                !notNearby(RobotType.LANDSCAPER)
+                                )
+            ) {
                 if (tryBuild(RobotType.NET_GUN, randomDirection())) {
                     System.out.println("A net Gun has been built");
                     radio.shareBuilding(5);
                     netGunCount += 1;
+                }
+            } // Then try to build near soup to protect miners around from drones
+            else if (notNearby(RobotType.NET_GUN)){
+                if(nearbySoup != null) {
+                    if (tryBuild(RobotType.NET_GUN, randomDirection())) {
+                        System.out.println("A net Gun has been built");
+                        radio.shareBuilding(5);
+                        netGunCount += 1;
+                    }
                 }
             } else if (vaporatorCount < refineryMap.size() && !notNearby(RobotType.REFINERY)
                     && rc.getTeamSoup() > 600) {
