@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Unit extends Robot {
 
     ArrayList<MapLocation> waterMap = new ArrayList<>();
+    ArrayList<Direction> visitedDir = new ArrayList<>();
 
     public Unit(RobotController r) {
         super(r);
@@ -25,8 +26,10 @@ public class Unit extends Robot {
     boolean tryMove(Direction dir) throws GameActionException {
         // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
         if(rc.getType() != RobotType.DELIVERY_DRONE) {
+
             if (rc.isReady() && rc.senseFlooding(rc.getLocation().add(dir))) {
-                //share the location of the water on the blockchain and add to water map
+                // !visitedDir.contains(dir)) {
+                // share the location of the water on the blockchain and add to water map
                 MapLocation waterLoc = rc.getLocation().add(dir);
                 radio.shareLocation(waterLoc, 10);
                 waterMap.add(waterLoc);
@@ -34,8 +37,10 @@ public class Unit extends Robot {
             }
             else if (rc.isReady() && rc.canMove(dir)) {
                 rc.move(dir);
+                visitedDir.add(dir);
                 return true;
-            } else return false;
+            }
+            else return false;
         }
         else {
             if (rc.isReady() && rc.canMove(dir) ) {
@@ -72,6 +77,12 @@ public class Unit extends Robot {
 
     /**
      * Attempts to move in a smarter way in a given direction.
+     * This is the diagram of the tries done by the robot (R).
+     * In this example the R is facing North and it will start
+     * with trying 1 then 2 and so on so forth..
+     * |3|1|2|
+     * |5|R|4|
+     * |7|8|6|
      *
      * @param dir The intended direction of movement
      * @return true if a move was performed
@@ -79,10 +90,14 @@ public class Unit extends Robot {
      */
     boolean goTo(Direction dir) throws GameActionException {
         Direction[] toTry = {
-                dir,
-                dir.rotateRight(),
-                dir.rotateRight().rotateRight(),
-                dir.rotateRight().rotateRight().rotateRight()
+                dir,                  // try given direction than from there:
+                dir.rotateRight(),                              // 2
+                dir.rotateLeft(),                               // 3
+                dir.rotateRight().rotateRight(),                // 4
+                dir.rotateLeft().rotateLeft(),                  // 5
+                dir.rotateRight().rotateRight().rotateRight(),  // 6
+                dir.rotateLeft().rotateLeft().rotateLeft(),     // 7
+                //dir.opposite()                                  // 8
         };
         for (Direction d : toTry) {
             if (tryMove(d))
