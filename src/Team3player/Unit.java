@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Unit extends Robot {
 
+    ArrayList<MapLocation> waterMap = new ArrayList<>();
     ArrayList<Direction> visitedDir = new ArrayList<>();
 
     public Unit(RobotController r) {
@@ -25,8 +26,16 @@ public class Unit extends Robot {
     boolean tryMove(Direction dir) throws GameActionException {
         // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
         if(rc.getType() != RobotType.DELIVERY_DRONE) {
-            if (rc.isReady() && rc.canMove(dir) && !rc.senseFlooding(rc.getLocation().add(dir))) {
-//                    !visitedDir.contains(dir)) {
+
+            if (rc.isReady() && rc.senseFlooding(rc.getLocation().add(dir))) {
+                // !visitedDir.contains(dir)) {
+                // share the location of the water on the blockchain and add to water map
+                MapLocation waterLoc = rc.getLocation().add(dir);
+                radio.shareLocation(waterLoc, 10);
+                waterMap.add(waterLoc);
+                return false;
+            }
+            else if (rc.isReady() && rc.canMove(dir)) {
                 rc.move(dir);
                 visitedDir.add(dir);
                 return true;
